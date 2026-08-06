@@ -69,22 +69,26 @@ async def test_recently_expired_sessions_are_retained(conn: asyncpg.Connection) 
         "INSERT INTO users (email) VALUES ($1) RETURNING id",
         f"sweep-{os.urandom(4).hex()}@example.com",
     )
-    recent, ancient = os.urandom(16).hex(), os.urandom(16).hex()
-    await conn.execute(
-        """INSERT INTO sessions (token_hash, user_id, org_id, expires_at)
-           VALUES ($1, $3, $4, now() - interval '2 days'),
-                  ($2, $3, $4, now() - interval '90 days')""",
-        recent, ancient, user, org,
-    )
+    # try/finally, not trailing statements: an assertion failure used to skip
+    # the cleanup entirely and leave a "Sweep Test" organisation behind in the
+    # developer's real database, where it then shows up as a mystery tenant.
+    try:
+        recent, ancient = os.urandom(16).hex(), os.urandom(16).hex()
+        await conn.execute(
+            """INSERT INTO sessions (token_hash, user_id, org_id, expires_at)
+               VALUES ($1, $3, $4, now() - interval '2 days'),
+                      ($2, $3, $4, now() - interval '90 days')""",
+            recent, ancient, user, org,
+        )
 
-    await sweep_expired(conn)
+        await sweep_expired(conn)
 
-    assert await conn.fetchval(
-        "SELECT EXISTS(SELECT 1 FROM sessions WHERE token_hash = $1)", recent
-    ), "expired two days ago — still wanted for audit"
-    assert not await conn.fetchval(
-        "SELECT EXISTS(SELECT 1 FROM sessions WHERE token_hash = $1)", ancient
-    )
-
-    await conn.execute("DELETE FROM organizations WHERE id = $1", org)
-    await conn.execute("DELETE FROM users WHERE id = $1", user)
+        assert await conn.fetchval(
+            "SELECT EXISTS(SELECT 1 FROM sessions WHERE token_hash = $1)", recent
+        ), "expired two days ago — still wanted for audit"
+        assert not await conn.fetchval(
+            "SELECT EXISTS(SELECT 1 FROM sessions WHERE token_hash = $1)", ancient
+        )
+    finally:
+        await conn.execute("DELETE FROM organizations WHERE id = $1", org)
+        await conn.execute("DELETE FROM users WHERE id = $1", user)

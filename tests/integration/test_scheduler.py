@@ -288,7 +288,17 @@ async def test_one_blocked_site_does_not_cancel_the_whole_tick(
            VALUES ($1,$2,'gsc_sync','sync','running')""",
         site["org_id"], site["site_id"],
     )
-    await conn.execute("UPDATE schedules SET next_run_at = now() - interval '1 minute'")
+    # Scoped to this test's own two sites. This UPDATE used to carry no WHERE
+    # clause, so it marked EVERY schedule in the database due — including the
+    # real nightly ones for genuinely connected sites. Running the suite then
+    # fired live Google sync jobs against real client data and left their
+    # next_run_at rewritten, and the assertion below counted those extra firings
+    # and failed. A test must not be able to touch rows it did not create.
+    await conn.execute(
+        """UPDATE schedules SET next_run_at = now() - interval '1 minute'
+           WHERE site_id = ANY($1::uuid[])""",
+        [site["site_id"], str(other_site)],
+    )
 
     assert await tick(conn) == 1  # site B got through
 
