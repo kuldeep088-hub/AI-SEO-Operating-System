@@ -106,6 +106,12 @@ export default async function Dashboard() {
             <span className="caption hidden text-muted sm:inline">
               {principal.email}
             </span>
+            <Link
+              href="/reports"
+              className="caption rounded-md px-2 py-1 text-body transition-colors hover:text-title"
+            >
+              Reports
+            </Link>
             <ThemeToggle />
             <form action={`${process.env.API_URL}/v1/auth/logout`} method="post">
               <button className="caption h-8 rounded-md border border-line px-3 text-body transition-colors hover:border-line-strong hover:text-title">

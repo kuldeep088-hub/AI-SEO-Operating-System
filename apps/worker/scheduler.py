@@ -44,11 +44,21 @@ QUEUE_FOR: dict[str, str] = {
     "gsc_sync": "sync",
     "ga4_sync": "sync",
     "refresh_views": "default",
+    # Its own queue, concurrency 1: the narrative call holds the GPU, and two
+    # reports generating at once would contend for it.
+    "monthly_report": "report",
 }
 SCHEDULED_PRIORITY = 100
 
 # Nightly at 02:00 local, before anyone looks at a dashboard.
 NIGHTLY_CRON = "0 2 * * *"
+
+# Monthly report on the 3rd at 04:00 local. The 3rd rather than the 1st because
+# Search Console finalises data with a ~3 day lag — a report generated at
+# midnight on the 1st would under-report the last days of the month it covers
+# and never correct itself. 04:00 rather than 02:00 so the nightly syncs, and
+# the view refresh they chain, have landed first.
+MONTHLY_REPORT_CRON = "0 4 3 * *"
 DEFAULT_TZ = "Asia/Kolkata"
 
 
@@ -205,9 +215,13 @@ async def ensure_site_schedules(
     `ga4_sync` on a site with no GA4 property would fail nightly, forever.
     """
     wanted = [k for k, on in (("gsc_sync", gsc), ("ga4_sync", ga4)) if on]
+    # A monthly report needs Search Console; GA4 alone has nothing to narrate.
+    if gsc:
+        wanted.append("monthly_report")
     created: list[str] = []
 
     for kind in wanted:
+        cron = MONTHLY_REPORT_CRON if kind == "monthly_report" else NIGHTLY_CRON
         row = await conn.fetchval(
             """
             INSERT INTO schedules (org_id, site_id, kind, cron, timezone, next_run_at)
@@ -220,9 +234,9 @@ async def ensure_site_schedules(
             org_id,
             site_id,
             kind,
-            NIGHTLY_CRON,
+            cron,
             timezone,
-            next_run(NIGHTLY_CRON, timezone, site_id=site_id),
+            next_run(cron, timezone, site_id=site_id),
         )
         if row:
             created.append(kind)

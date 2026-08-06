@@ -365,3 +365,65 @@ body {
 summary::-webkit-details-marker {
   display: none;
 }
+
+/* ── Print ─────────────────────────────────────────────────────
+   A monthly report is meant to reach a client as a PDF, and the
+   browser's own print-to-PDF is the $0 way to produce one. These rules
+   turn the app sheet into a document: app chrome removed, dark canvas
+   forced to paper (a near-black background prints as a solid black
+   page and empties a toner cartridge), and sections kept off page
+   breaks. */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  /* Print is always light regardless of the viewer's theme. */
+  :root,
+  :root[data-theme="dark"],
+  :root[data-theme="light"] {
+    --canvas: #ffffff;
+    --surface: #ffffff;
+    --surface-2: #ffffff;
+    --surface-3: #f4f4f5;
+    --line: #d4d4d8;
+    --line-strong: #a1a1aa;
+    --text-title: #000000;
+    --text-strong: #18181b;
+    --text-body: #27272a;
+    --text-subtle: #3f3f46;
+    --text-muted: #52525b;
+    --fill-subtle: #f4f4f5;
+    --positive: #15803d;
+    --negative: #b91c1c;
+    --hairline-ring: #d4d4d8;
+  }
+
+  html,
+  body {
+    background: #ffffff !important;
+  }
+
+  .report-sheet {
+    max-width: none;
+    padding: 0;
+  }
+
+  /* A heading stranded at the foot of a page reads as a mistake. */
+  section {
+    break-inside: avoid;
+  }
+
+  h1,
+  h2 {
+    break-after: avoid;
+  }
+
+  table {
+    break-inside: auto;
+  }
+
+  tr {
+    break-inside: avoid;
+  }
+}

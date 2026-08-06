@@ -13,7 +13,7 @@ import signal
 from typing import Any
 
 from apps.worker import runner, scheduler
-from apps.worker.jobs import ga4_sync, gsc_sync
+from apps.worker.jobs import ga4_sync, gsc_sync, monthly_report
 from packages.core.config import settings
 from packages.core.logging import configure_logging, get_logger
 from packages.db.engine import close_pool, init_pool, pool
@@ -41,6 +41,13 @@ HANDLERS: dict[str, Any] = {
     "ga4_backfill": lambda conn, job, progress: ga4_sync.run(
         conn, site_id=str(job["site_id"]), backfill=True, progress=progress),
     "refresh_views": lambda conn, job, progress: refresh_views(conn),
+    # Queue "report": one at a time. The Report Narrator runs with reasoning
+    # on, so it holds the GPU far longer than a structured call.
+    "monthly_report": lambda conn, job, progress: monthly_report.run(
+        conn, org_id=str(job["org_id"]), site_id=str(job["site_id"]),
+        period_start=job["payload"].get("period_start"),
+        period_end=job["payload"].get("period_end"),
+        progress=progress),
 }
 
 _shutdown = asyncio.Event()

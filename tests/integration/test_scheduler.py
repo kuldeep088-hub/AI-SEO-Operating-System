@@ -100,13 +100,15 @@ async def test_ensure_site_schedules_is_idempotent(
     second = await ensure_site_schedules(
         conn, org_id=site["org_id"], site_id=site["site_id"], gsc=True, ga4=True
     )
-    assert sorted(first) == ["ga4_sync", "gsc_sync"]
+    # monthly_report joins the two nightly syncs — a site with Search Console
+    # connected also gets a monthly report schedule (roadmap Phase 1 week 8).
+    assert sorted(first) == ["ga4_sync", "gsc_sync", "monthly_report"]
     assert second == []
 
     count = await conn.fetchval(
         "SELECT count(*) FROM schedules WHERE site_id = $1", site["site_id"]
     )
-    assert count == 2
+    assert count == 3
 
 
 async def test_only_connected_properties_are_scheduled(
@@ -116,12 +118,15 @@ async def test_only_connected_properties_are_scheduled(
     created = await ensure_site_schedules(
         conn, org_id=site["org_id"], site_id=site["site_id"], gsc=True, ga4=False
     )
-    assert created == ["gsc_sync"]
+    # No ga4_sync: the point of the test. monthly_report is present because it
+    # needs Search Console only.
+    assert created == ["gsc_sync", "monthly_report"]
 
     kinds = await conn.fetch(
         "SELECT kind FROM schedules WHERE site_id = $1", site["site_id"]
     )
-    assert [r["kind"] for r in kinds] == ["gsc_sync"]
+    assert sorted(r["kind"] for r in kinds) == ["gsc_sync", "monthly_report"]
+    assert "ga4_sync" not in [r["kind"] for r in kinds]
 
 
 async def test_a_schedule_gained_later_is_added_without_touching_the_first(
@@ -172,10 +177,12 @@ async def test_tick_fires_a_due_schedule_onto_the_right_queue(
         site["site_id"],
     )
 
-    assert await tick(conn) == 1
+    # gsc_sync and monthly_report are both due, so two jobs are enqueued.
+    assert await tick(conn) == 2
 
     job = await conn.fetchrow(
-        "SELECT kind, queue, priority, status FROM jobs WHERE site_id = $1",
+        "SELECT kind, queue, priority, status FROM jobs "
+        "WHERE site_id = $1 AND kind = 'gsc_sync'",
         site["site_id"],
     )
     assert job["kind"] == "gsc_sync"
@@ -197,7 +204,7 @@ async def test_downtime_produces_one_run_not_a_storm(
         site["site_id"],
     )
 
-    assert await tick(conn) == 1
+    assert await tick(conn) == 2
     assert await tick(conn) == 0, "second tick re-fired — next_run_at did not advance"
 
     nxt = await conn.fetchval(
@@ -208,7 +215,9 @@ async def test_downtime_produces_one_run_not_a_storm(
     total = await conn.fetchval(
         "SELECT count(*) FROM jobs WHERE site_id = $1", site["site_id"]
     )
-    assert total == 1
+    # One each for gsc_sync and monthly_report — the point is that three days
+    # of downtime produced one run per schedule, not three.
+    assert total == 2
 
 
 async def test_tick_advances_even_when_a_job_is_already_pending(
@@ -229,7 +238,14 @@ async def test_tick_advances_even_when_a_job_is_already_pending(
         site["site_id"],
     )
 
-    assert await tick(conn) == 0  # blocked by the unique index
+    # gsc_sync is blocked by the partial unique index; monthly_report has no
+    # pending job so it still fires. The property under test is that the
+    # schedule advances anyway — asserted below.
+    assert await tick(conn) == 1
+    assert await conn.fetchval(
+        "SELECT count(*) FROM jobs WHERE site_id=$1 AND kind='gsc_sync'",
+        site["site_id"],
+    ) == 1, "the blocked enqueue must stay a no-op, not create a second job"
 
     nxt = await conn.fetchval(
         "SELECT next_run_at FROM schedules WHERE site_id = $1", site["site_id"]
@@ -300,10 +316,17 @@ async def test_one_blocked_site_does_not_cancel_the_whole_tick(
         [site["site_id"], str(other_site)],
     )
 
-    assert await tick(conn) == 1  # site B got through
+    # Site A's gsc_sync is blocked by its running job; site B's gets through,
+    # and both sites' monthly_report schedules fire too.
+    assert await tick(conn) == 3  # site B's sync + two monthly reports
 
+    # Scoped to the kind under test: site B now also has a monthly_report
+    # schedule, and counting every job would make this assert on the wrong
+    # thing. The property is that site A being blocked did not stop site B's
+    # sync from being enqueued.
     queued = await conn.fetchval(
-        "SELECT count(*) FROM jobs WHERE site_id = $1 AND status = 'queued'",
+        """SELECT count(*) FROM jobs
+           WHERE site_id = $1 AND kind = 'gsc_sync' AND status = 'queued'""",
         other_site,
     )
     assert queued == 1, "a blocked site cancelled the rest of the tick"
