@@ -14,7 +14,7 @@ from urllib.parse import urlencode
 
 import httpx
 from fastapi import APIRouter, Cookie, HTTPException, Query, Request
-from fastapi.responses import JSONResponse, RedirectResponse
+from fastapi.responses import JSONResponse, RedirectResponse, Response
 
 from apps.api.deps import ROLE_PERMISSIONS, SESSION_COOKIE, CurrentPrincipal
 from packages.core.config import settings
@@ -228,16 +228,44 @@ async def google_callback(
 
 @router.post("/logout")
 async def logout(
+    request: Request,
     seoos_session: Annotated[str | None, Cookie(alias=SESSION_COOKIE)] = None,
-) -> JSONResponse:
+) -> Response:
+    """Revoke the session, then send the caller somewhere useful.
+
+    The sign-out control is a plain HTML form posting to this endpoint, and a
+    browser form POST *navigates* to whatever comes back. Returning
+    `{"ok": true}` therefore logged the user out correctly and then left them
+    staring at raw JSON on the API's origin, with no link back.
+
+    So the response depends on who is asking: a browser navigation gets a
+    redirect to the login page, and anything else keeps the JSON body that a
+    script would expect. 303 See Other is the status that turns a POST into a
+    GET on the redirect — 302 leaves some clients re-POSTing to /login.
+    """
     if seoos_session:
         async with system_tx() as conn:
             await conn.execute(
                 "UPDATE sessions SET revoked_at = now() WHERE token_hash = $1",
                 hash_token(seoos_session),
             )
-    response = JSONResponse({"ok": True})
-    response.delete_cookie(SESSION_COOKIE, path="/")
+
+    wants_html = "text/html" in request.headers.get("accept", "")
+    response: Response = (
+        RedirectResponse(f"{settings.web_url}/login", status_code=303)
+        if wants_html
+        else JSONResponse({"ok": True})
+    )
+
+    # The delete has to mirror the attributes the cookie was set with, or the
+    # browser treats it as a different cookie and keeps the original.
+    response.delete_cookie(
+        SESSION_COOKIE,
+        path="/",
+        httponly=True,
+        samesite="lax",
+        secure=settings.cookie_secure,
+    )
     return response
 
 
