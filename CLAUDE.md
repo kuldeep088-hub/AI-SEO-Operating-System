@@ -59,6 +59,11 @@ python scripts/seed_demo.py --clear
 ./backup.sh                     # db + data + .env → one archive
 ./serve-docs.sh                 # read the spec at localhost:4000
 
+# Tests read DATABASE_URL / ADMIN_DATABASE_URL from the environment, and pytest
+# does not load .env. Without this, every database test errors on a connection
+# refused to a TCP default that nothing listens on — it looks like Postgres is
+# down when it is only unconfigured.
+set -a; source .env; set +a
 uv run pytest                   # all Python tests
 uv run pytest tests/isolation   # ← run before any commit touching data access
 uv run ruff check . && uv run mypy packages apps/api
