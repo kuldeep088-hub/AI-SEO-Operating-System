@@ -104,22 +104,38 @@ async def callback(
 
     tokens, _ = await exchange_code(code, REDIRECT)
 
+    # `memberships` is not a tenant table — it is how the org is discovered in
+    # the first place — so this lookup genuinely belongs on system_tx.
     async with system_tx() as conn:
         membership = await conn.fetchrow(
-            "SELECT org_id FROM memberships WHERE user_id = $1 LIMIT 1", row["user_id"]
+            "SELECT org_id, role FROM memberships WHERE user_id = $1 LIMIT 1",
+            row["user_id"],
         )
-        if membership is None:
-            raise HTTPException(400, detail="No organisation for this user")
+    if membership is None:
+        raise HTTPException(400, detail="No organisation for this user")
 
-        # A partial grant is normal: Google lets the user untick one scope.
-        granted = set(tokens.scopes)
-        missing = [s for s in DATA_SCOPES if s not in granted]
+    org_id = str(membership["org_id"])
 
+    # A partial grant is normal: Google lets the user untick one scope.
+    granted = set(tokens.scopes)
+    missing = [s for s in DATA_SCOPES if s not in granted]
+
+    # `oauth_connections` IS a tenant table, so both statements below must run
+    # with the org context set — CLAUDE.md rule 3, and system_tx's own
+    # docstring ("Everything else uses tenant_tx").
+    #
+    # This block used to run on system_tx, where `app.current_org_id` is unset.
+    # The policy is `org_id = nullif(current_setting(...), '')::uuid`, so it
+    # evaluated to NULL: the INSERT failed its WITH CHECK with
+    # InsufficientPrivilegeError — a 500 on the connect flow — and the SELECT
+    # above it matched nothing, which would have reported "Google did not
+    # return a refresh token" on every legitimate re-grant.
+    async with tenant_tx(org_id, membership["role"]) as conn:
         if not tokens.refresh_token:
             existing = await conn.fetchval(
                 """SELECT refresh_token_enc FROM oauth_connections
                    WHERE org_id = $1 AND provider = 'google'""",
-                membership["org_id"],
+                org_id,
             )
             if not existing:
                 raise HTTPException(
@@ -130,13 +146,12 @@ async def callback(
 
         await store_connection(
             conn,
-            org_id=str(membership["org_id"]),
+            org_id=org_id,
             user_id=str(row["user_id"]),
             tokens=tokens,
         )
 
-    log.info("google.data_granted", org_id=str(membership["org_id"]),
-             missing=missing)
+    log.info("google.data_granted", org_id=org_id, missing=missing)
 
     # Re-validated on the way out — see safe_redirect_path. The partial flag is
     # merged into the existing query rather than concatenated, because
@@ -152,7 +167,10 @@ async def callback(
 @router.get("/properties")
 async def properties(principal: CurrentPrincipal) -> dict[str, Any]:
     """Every Search Console and GA4 property this Google account can read."""
-    async with system_tx() as conn:
+    # tenant_tx, not system_tx: get_access_token reads oauth_connections, which
+    # RLS filters to nothing without an org context — so this reported "No
+    # Google account connected" even for an org that had just connected one.
+    async with tenant_tx(principal.org_id, principal.role) as conn:
         token = await get_access_token(conn, principal.org_id)
 
     sc = await gsc.list_properties(token)

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
-import { systemQuery } from "@/lib/db";
+import { tenantQuery } from "@/lib/db";
 import { describeOAuthError } from "@/lib/oauth-errors";
 import { getPrincipal } from "@/lib/session";
 
@@ -20,7 +20,14 @@ export default async function Connect({
   const { partial, oauth_error: oauthError } = await searchParams;
   const apiUrl = process.env.API_URL ?? "http://localhost:8000";
 
-  const [connection] = await systemQuery<{ scopes: string[]; account_email: string }>(
+  // tenantQuery, not systemQuery: oauth_connections is an RLS-protected tenant
+  // table, and a query with no org context matches nothing. Read through
+  // systemQuery it always came back empty, so `granted` was always false and
+  // this page kept showing "Grant data access" to orgs that had already
+  // granted it — an infinite loop with no error anywhere. CLAUDE.md rule 3.
+  const [connection] = await tenantQuery<{ scopes: string[]; account_email: string }>(
+    principal.orgId,
+    principal.role,
     `SELECT scopes, account_email FROM oauth_connections
      WHERE org_id = $1 AND provider = 'google' AND revoked_at IS NULL
      LIMIT 1`,

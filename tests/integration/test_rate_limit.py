@@ -83,11 +83,22 @@ def test_retry_after_is_at_least_one_second(limiter: TokenBucketLimiter) -> None
     assert limiter.retry_after("ip", rule) >= 1
 
 
-def test_idle_buckets_are_evicted(limiter: TokenBucketLimiter, monkeypatch) -> None:
-    """Memory must not be the failure mode when an attacker rotates addresses."""
-    rule = RateLimit(1, 60)
+def test_idle_buckets_are_evicted(monkeypatch) -> None:
+    """Memory must not be the failure mode when an attacker rotates addresses.
+
+    Deliberately does NOT use the `limiter` fixture. TokenBucketLimiter records
+    `_last_sweep` from the clock at construction, so building it before the
+    clock is faked stamps it with real process uptime — then `now -
+    _last_sweep` is hugely negative, `_maybe_sweep` early-returns, and the
+    sweep under test never runs. That made this pass on a freshly booted
+    machine and fail after ~2 hours of uptime.
+    """
     clock = {"t": 1_000.0}
     monkeypatch.setattr("packages.core.ratelimit.time.monotonic", lambda: clock["t"])
+
+    # Constructed after the patch, so _last_sweep starts on the fake clock too.
+    limiter = TokenBucketLimiter()
+    rule = RateLimit(1, 60)
 
     for i in range(100):
         limiter.allow(f"ip-{i}", rule)

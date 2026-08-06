@@ -22,7 +22,7 @@ from packages.core.crypto import hash_token, new_token
 from packages.core.logging import get_logger
 from packages.core.ratelimit import OAUTH_START_PER_IP, client_ip, enforce
 from packages.core.urls import safe_redirect_path
-from packages.db.engine import system_tx
+from packages.db.engine import system_tx, tenant_tx
 
 router = APIRouter(prefix="/v1/auth", tags=["auth"])
 log = get_logger(__name__)
@@ -243,11 +243,16 @@ async def logout(
 
 @router.get("/me")
 async def me(principal: CurrentPrincipal) -> dict[str, object]:
+    # `organizations` is not a tenant table (it is the tenant), so it stays on
+    # system_tx. `oauth_connections` is one, and reading it without an org
+    # context returns nothing — this reported data_scopes_granted=false for
+    # every org, including ones that had connected Google successfully.
     async with system_tx() as conn:
         org = await conn.fetchrow(
             "SELECT name, slug, brand_color FROM organizations WHERE id = $1",
             principal.org_id,
         )
+    async with tenant_tx(principal.org_id, principal.role) as conn:
         has_google_data = await conn.fetchval(
             """
             SELECT EXISTS(
