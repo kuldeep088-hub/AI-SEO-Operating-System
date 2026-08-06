@@ -74,7 +74,26 @@ async def grant(principal: CurrentPrincipal, redirect_to: str = "/connect") -> R
 
 
 @router.get("/callback")
-async def callback(code: str = Query(...), state: str = Query(...)) -> RedirectResponse:
+async def callback(
+    code: str | None = Query(None),
+    state: str | None = Query(None),
+    error: str | None = Query(None),
+) -> RedirectResponse:
+    # Same refusal path as the sign-in callback — see the comment there. Here
+    # the user is already signed in and was granting Search Console / GA4, so
+    # they go back to /connect rather than /login.
+    if error or code is None:
+        log.info("google.grant_refused", error=error or "missing_code")
+        # Only when there is a state to clean up. A bare callback hit — a
+        # stale bookmark, a crawler — should not cost a database round trip on
+        # an unauthenticated path; sweep_expired() collects the rest anyway.
+        if state:
+            async with system_tx() as conn:
+                await conn.execute("DELETE FROM oauth_states WHERE state = $1", state)
+        return RedirectResponse(
+            f"{settings.web_url}/connect?{urlencode({'oauth_error': error or 'missing_code'})}"
+        )
+
     async with system_tx() as conn:
         row = await conn.fetchrow(
             "DELETE FROM oauth_states WHERE state = $1 AND expires_at > now() RETURNING *",

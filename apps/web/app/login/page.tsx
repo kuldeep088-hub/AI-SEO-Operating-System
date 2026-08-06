@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { PublicFooter, PublicHeader } from "@/components/public-chrome";
+import { describeOAuthError } from "@/lib/oauth-errors";
 import { getPrincipal } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
@@ -31,11 +32,11 @@ async function isApiUp(apiUrl: string): Promise<boolean> {
 export default async function Login({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string }>;
+  searchParams: Promise<{ error?: string; oauth_error?: string }>;
 }) {
   if (await getPrincipal()) redirect("/");
 
-  const { error } = await searchParams;
+  const { error, oauth_error: oauthError } = await searchParams;
   const apiUrl = process.env.API_URL ?? "http://localhost:8000";
   const apiUp = await isApiUp(apiUrl);
 
@@ -50,6 +51,19 @@ export default async function Login({
             Search Console and Analytics for every client site, in one place,
             refreshed nightly.
           </p>
+
+          {/* Google refused the authorisation and sent the user back here.
+              Most often they pressed Cancel; sometimes their Workspace admin
+              blocks the app. Either way they need to know nothing was shared
+              and what to try next. */}
+          {oauthError && (
+            <div className="mt-8 rounded-md border border-line bg-fill-subtle px-4 py-3">
+              <p className="body-sm text-title">Google sign-in didn&apos;t finish.</p>
+              <p className="body-sm mt-2 text-subtle">
+                {describeOAuthError(oauthError)}
+              </p>
+            </div>
+          )}
 
           {error === "demo_expired" && (
             <div className="mt-8 rounded-md border border-line bg-fill-subtle px-4 py-3">

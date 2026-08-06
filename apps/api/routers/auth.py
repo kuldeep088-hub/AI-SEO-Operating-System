@@ -10,6 +10,7 @@ from __future__ import annotations
 import secrets
 from datetime import UTC, datetime, timedelta
 from typing import Annotated
+from urllib.parse import urlencode
 
 import httpx
 from fastapi import APIRouter, Cookie, HTTPException, Query, Request
@@ -89,9 +90,27 @@ async def google_start(request: Request, redirect_to: str = "/") -> RedirectResp
 @router.get("/google/callback")
 async def google_callback(
     request: Request,
-    code: str = Query(...),
-    state: str = Query(...),
+    code: str | None = Query(None),
+    state: str | None = Query(None),
+    error: str | None = Query(None),
 ) -> RedirectResponse:
+    # Google reports a refused authorisation by redirecting HERE with `error`
+    # and no `code` — pressing Cancel on the consent screen is the common case,
+    # and on a public deployment that happens constantly. `code` used to be a
+    # required query parameter, so this path returned FastAPI's raw 422
+    # validation JSON in the browser: a dead end with no way back.
+    if error or code is None:
+        log.info("auth.oauth_refused", error=error or "missing_code")
+        # Only when there is a state to clean up. A bare callback hit — a
+        # stale bookmark, a crawler — should not cost a database round trip on
+        # an unauthenticated path; sweep_expired() collects the rest anyway.
+        if state:
+            async with system_tx() as conn:
+                await conn.execute("DELETE FROM oauth_states WHERE state = $1", state)
+        return RedirectResponse(
+            f"{settings.web_url}/login?{urlencode({'oauth_error': error or 'missing_code'})}"
+        )
+
     async with system_tx() as conn:
         # Single-use: consume the state as we validate it.
         row = await conn.fetchrow(
