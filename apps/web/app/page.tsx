@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { MarketingHome } from "@/components/marketing-home";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { tenantQuery } from "@/lib/db";
@@ -197,8 +199,13 @@ export default async function Dashboard() {
                           key={s.site_id}
                           className={i > 0 ? "border-t border-line" : ""}
                         >
-                          <td className="body-sm px-4 py-3 text-title">
-                            {s.client_name}
+                          <td className="body-sm px-4 py-3">
+                            <Link
+                              href={`/sites/${s.site_id}`}
+                              className="text-title hover:underline"
+                            >
+                              {s.client_name}
+                            </Link>
                           </td>
                           <td className="body-sm px-4 py-3 text-subtle">{s.domain}</td>
                           <td className="body-sm tnum px-4 py-3 text-right text-title">
@@ -266,7 +273,11 @@ function SiteCard({ site }: { site: SiteRow }) {
     <article className="card p-6">
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
-          <h2 className="body-emphasis truncate text-title">{site.client_name}</h2>
+          <h2 className="body-emphasis truncate text-title">
+            <Link href={`/sites/${site.site_id}`} className="hover:underline">
+              {site.client_name}
+            </Link>
+          </h2>
           <p className="mono-label mt-1 truncate text-muted">{site.domain}</p>
         </div>
         <span className="label shrink-0 rounded-sm bg-negative/10 px-1.5 py-0.5 text-negative">

@@ -57,6 +57,13 @@
   --positive: #27a644;
   --negative: #eb5757;
   --hairline-ring: rgb(35 37 42);
+  /* Chart ink. Deliberately NOT the acid-lime accent: DESIGN.md reserves that
+     for the one primary action per view, and a chart line is not an action.
+     Validated with the dataviz palette checker against this surface —
+     #14a3b8 sits inside the dark lightness band L 0.48–0.67 and clears
+     3:1 contrast; the brighter cyans in the same family do not. */
+  --chart-1: #14a3b8;
+  --chart-grid: rgb(255 255 255 / 0.06);
   --gradient-floor: linear-gradient(to bottom, rgb(8 9 10) 10%, rgb(208 214 224) 100%);
 }
 
@@ -83,6 +90,10 @@
   --positive: #15803d;
   --negative: #c81e1e;
   --hairline-ring: rgb(228 228 231);
+  /* Re-validated against white: the dark step reads gray on a light surface
+     (chroma below the floor), so light mode takes its own step. */
+  --chart-1: #0891b2;
+  --chart-grid: rgb(0 0 0 / 0.07);
   --gradient-floor: linear-gradient(to bottom, rgb(255 255 255) 10%, rgb(212 212 216) 100%);
 }
 
@@ -106,6 +117,8 @@
   --color-on-inverse: var(--on-inverse);
   --color-positive: var(--positive);
   --color-negative: var(--negative);
+  --color-chart-1: var(--chart-1);
+  --color-chart-grid: var(--chart-grid);
 
   /* Supporting chromatic punctuation for tags and badges. DESIGN.md is
      explicit that these are NOT status colours — the semantic
