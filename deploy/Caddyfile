@@ -1,0 +1,44 @@
+# Reverse proxy for the AI SEO OS. bootstrap.sh substitutes DOMAIN_PLACEHOLDER.
+#
+# The whole point of this file is that the API and the web app are served from
+# ONE hostname. The session cookie is set by FastAPI on /v1/auth/google/callback
+# and read by the Next.js app on every page; put them on two hostnames and the
+# browser treats it as cross-site and drops it, with no error in any log.
+
+DOMAIN_PLACEHOLDER {
+	encode zstd gzip
+
+	# The API must claim /v1/* before Next.js sees it. This covers sign-in, the
+	# Google grant callback, the properties/connect endpoints the connect form
+	# calls from the browser, and /v1/docs.
+	handle /v1/* {
+		reverse_proxy 127.0.0.1:8000
+	}
+
+	# Everything else is Next.js. Note it is not just a proxy client — RSC opens
+	# its own Postgres pool (apps/web/lib/db.ts) and reads the database directly.
+	handle {
+		reverse_proxy 127.0.0.1:3000
+	}
+
+	# /health is deliberately NOT routed. It reports the Postgres version,
+	# whether pgvector is present, and whether OAuth is configured — free
+	# reconnaissance for no benefit to a browser. Reach it over SSH:
+	#     curl -s localhost:8000/health | jq
+	# The login page's own probe uses INTERNAL_API_URL on the loopback.
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options nosniff
+		X-Frame-Options DENY
+		Referrer-Policy strict-origin-when-cross-origin
+		-Server
+	}
+
+	log {
+		output file /var/log/caddy/seoos.log {
+			roll_size 20mb
+			roll_keep 5
+		}
+	}
+}

@@ -1,0 +1,164 @@
+@import "tailwindcss";
+
+/* Design tokens from DESIGN.md (Vercel-inspired).
+   Nav-scale radii (6px) throughout — this is an app shell, not a marketing
+   page, and DESIGN.md forbids mixing the 100px marketing pill with the 6px
+   nav scale on one screen. */
+
+@theme {
+  /* ── Colour ─────────────────────────────────────────────────── */
+  --color-primary: #171717;
+  --color-on-primary: #ffffff;
+  --color-ink: #171717;
+  --color-body: #4d4d4d;
+  --color-mute: #888888;
+  --color-hairline: #ebebeb;
+  --color-hairline-strong: #a1a1a1;
+  --color-canvas: #ffffff;
+  --color-canvas-soft: #fafafa;
+  --color-canvas-soft-2: #f5f5f5;
+
+  --color-link: #0070f3;
+  --color-link-deep: #0761d1;
+  --color-success: #0070f3;
+  --color-error: #ee0000;
+  --color-error-soft: #f7d4d6;
+  --color-error-deep: #c50000;
+  --color-warning: #f5a623;
+  --color-warning-soft: #ffefcf;
+  --color-warning-deep: #ab570a;
+  --color-cyan-deep: #29bc9b;
+
+  /* ── Type ───────────────────────────────────────────────────── */
+  --font-sans: var(--font-geist-sans), Inter, system-ui, -apple-system, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* ── Radius (nav scale) ─────────────────────────────────────── */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+
+  /* ── Spacing ─────────────────────────────────────────────────
+     Deliberately NOT defined as custom variables.
+
+     Tailwind v4 resolves `max-w-3xl` / `w-lg` and friends from the
+     --container-* namespace, but a --spacing-3xl definition silently wins
+     over it: `max-w-3xl` compiles to `max-width: var(--spacing-3xl)` and,
+     if that variable isn't emitted, the element collapses to min-content.
+     Every word wraps onto its own line and nothing in the markup explains why.
+
+     DESIGN.md's scale is already 4px-based, so Tailwind's numeric scale
+     expresses it exactly with no custom tokens:
+
+       xxs  4px = 1     lg  24px = 6      3xl  48px = 12
+       xs   8px = 2     xl  32px = 8      4xl  64px = 16
+       sm  12px = 3     2xl 40px = 10     5xl  96px = 24
+       md  16px = 4                       6xl 128px = 32
+  */
+}
+
+/* Stacked small offsets + inset hairline ring — DESIGN.md is explicit that a
+   single heavy drop-shadow is wrong for this brand. */
+@utility elevate-1 {
+  box-shadow:
+    0 0 0 1px rgb(0 0 0 / 0.04) inset,
+    0 1px 1px rgb(0 0 0 / 0.02),
+    0 2px 4px rgb(0 0 0 / 0.03);
+}
+
+@utility elevate-2 {
+  box-shadow:
+    0 0 0 1px rgb(0 0 0 / 0.06) inset,
+    0 1px 2px rgb(0 0 0 / 0.04),
+    0 4px 8px rgb(0 0 0 / 0.04),
+    0 8px 16px rgb(0 0 0 / 0.03);
+}
+
+/* Display scale: weight 600 ceiling, sentence case, negative tracking.
+   DESIGN.md: never promote to 700, never all-caps. */
+@utility display-xl {
+  font-size: 48px;
+  font-weight: 600;
+  line-height: 48px;
+  letter-spacing: -2.4px;
+}
+
+@utility display-lg {
+  font-size: 32px;
+  font-weight: 600;
+  line-height: 40px;
+  letter-spacing: -1.28px;
+}
+
+@utility display-md {
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 32px;
+  letter-spacing: -0.96px;
+}
+
+@utility display-sm {
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 28px;
+  letter-spacing: -0.6px;
+}
+
+@utility body-md {
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+}
+
+@utility body-sm {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+  letter-spacing: -0.28px;
+}
+
+@utility body-sm-strong {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+  letter-spacing: -0.28px;
+}
+
+@utility caption {
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 16px;
+}
+
+/* Mono is the voice of the platform — eyebrows, technical labels, code.
+   Never body paragraphs. */
+@utility caption-mono {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 16px;
+  letter-spacing: 0.02em;
+}
+
+html {
+  background: var(--color-canvas-soft);
+}
+
+body {
+  background: var(--color-canvas-soft);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: #171717;
+  color: #f2f2f2;
+}
+
+/* Numbers that get compared column-to-column must not shift width. */
+.tnum {
+  font-variant-numeric: tabular-nums;
+}

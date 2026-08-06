@@ -1,0 +1,35 @@
+# Secrets — NEVER commit. Contains TOKEN_ENCRYPTION_KEY.
+.env
+.env.local
+
+# Runtime data
+data/
+logs/
+backups/
+bin/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Node
+node_modules/
+.next/
+out/
+*.tsbuildinfo
+next-env.d.ts
+
+# OS
+.DS_Store
+
+# Tool caches
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+.python-version

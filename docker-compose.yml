@@ -1,0 +1,61 @@
+# Only Postgres is containerised. Ollama needs Metal GPU access, which Docker
+# Desktop's Linux VM cannot provide — see docs/10-deployment.md §32.
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: seoos-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: seoos
+      POSTGRES_USER: seoos
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-seoos_local_dev}
+      POSTGRES_INITDB_ARGS: "--data-checksums"
+    ports:
+      # 127.0.0.1 prefix is load-bearing. "5432:5432" would expose the database
+      # to every network this laptop joins. See docs/09-security-ops.md §29.
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./infra/postgres/init.sql:/docker-entrypoint-initdb.d/10-init.sql:ro
+    command:
+      - postgres
+      - -c=shared_buffers=1GB
+      - -c=effective_cache_size=3GB
+      - -c=work_mem=32MB
+      - -c=maintenance_work_mem=512MB
+      - -c=max_connections=60
+      - -c=random_page_cost=1.1
+      - -c=effective_io_concurrency=200
+      - -c=max_parallel_workers_per_gather=4
+      - -c=log_min_duration_statement=1000
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U seoos -d seoos"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+
+  prometheus:
+    image: prom/prometheus:latest
+    profiles: [metrics]
+    ports: ["127.0.0.1:9090:9090"]
+    volumes:
+      - promdata:/prometheus
+
+  grafana:
+    image: grafana/grafana:latest
+    profiles: [metrics]
+    ports: ["127.0.0.1:3001:3000"]
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-admin}
+    volumes:
+      - grafanadata:/var/lib/grafana
+
+volumes:
+  pgdata:
+  promdata:
+  grafanadata:

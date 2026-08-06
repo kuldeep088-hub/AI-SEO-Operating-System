@@ -1,0 +1,42 @@
+[Unit]
+Description=AI SEO OS — Next.js
+Documentation=file:///opt/seoos/app/deploy/README.md
+After=network-online.target docker.service
+Wants=network-online.target
+
+[Service]
+Type=exec
+User=seoos
+Group=seoos
+WorkingDirectory=/opt/seoos/app/apps/web
+EnvironmentFile=/opt/seoos/app/.env
+
+# DATABASE_URL matters here as much as it does for the API: React Server
+# Components read Postgres directly through their own pool (apps/web/lib/db.ts)
+# rather than round-tripping through FastAPI. It comes from the EnvironmentFile
+# above; the web app is not merely a proxy client.
+Environment=NODE_ENV=production
+Environment=PORT=3000
+Environment=HOSTNAME=127.0.0.1
+
+# Next's binary directly rather than `npm run start`, so systemd supervises node
+# itself and SIGTERM is not swallowed by an npm wrapper process.
+ExecStart=/usr/bin/node /opt/seoos/app/apps/web/node_modules/next/dist/bin/next start -p 3000 -H 127.0.0.1
+
+Restart=always
+RestartSec=5
+
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=seoos-web
+
+[Install]
+WantedBy=multi-user.target

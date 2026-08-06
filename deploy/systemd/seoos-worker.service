@@ -1,0 +1,42 @@
+[Unit]
+Description=AI SEO OS — job worker pool and scheduler
+Documentation=file:///opt/seoos/app/deploy/README.md
+After=network-online.target docker.service seoos-api.service
+Wants=network-online.target
+Requires=docker.service
+
+[Service]
+Type=exec
+User=seoos
+Group=seoos
+WorkingDirectory=/opt/seoos/app
+EnvironmentFile=/opt/seoos/app/.env
+
+# This one process supervises the whole pool — sync, crawl, ai, report and
+# default queues (10 processes, ~800 MB) — and ticks the scheduler every 60s.
+# Only one process actually evaluates a given scheduler pass; a Postgres
+# advisory lock arbitrates, so this is safe to run alongside a second box.
+ExecStart=/opt/seoos/venv/bin/python -m apps.worker.main
+
+# A job holds a lease. Killing the pool mid-job does not lose the job — the
+# reclaimer picks up expired leases — but SIGTERM lets it finish cleanly first.
+KillSignal=SIGTERM
+TimeoutStopSec=120
+
+Restart=always
+RestartSec=10
+
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=seoos-worker
+
+[Install]
+WantedBy=multi-user.target

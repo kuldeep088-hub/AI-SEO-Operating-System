@@ -1,0 +1,48 @@
+[Unit]
+Description=AI SEO OS — FastAPI
+Documentation=file:///opt/seoos/app/deploy/README.md
+After=network-online.target docker.service
+Wants=network-online.target
+Requires=docker.service
+
+[Service]
+Type=exec
+User=seoos
+Group=seoos
+WorkingDirectory=/opt/seoos/app
+EnvironmentFile=/opt/seoos/app/.env
+
+# The venv's uvicorn directly, not `uv run` — systemd wants to supervise the
+# real process, and `uv run` adds a resolver pass to every restart.
+#
+# Bound to 127.0.0.1: Caddy is the only thing that should reach this. Binding
+# 0.0.0.0 would expose the API on :8000 bypassing TLS entirely.
+#
+# No --reload. It is for development, and it doubles memory.
+ExecStart=/opt/seoos/venv/bin/uvicorn apps.api.main:app \
+    --host 127.0.0.1 \
+    --port 8000 \
+    --workers 2 \
+    --proxy-headers \
+    --forwarded-allow-ips 127.0.0.1
+
+# Postgres may not have finished starting on a cold boot; just keep trying.
+Restart=always
+RestartSec=5
+
+# Sandboxing. ProtectSystem=full leaves /usr, /boot and /etc read-only while
+# still allowing writes to logs/ and data/ under the app directory.
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=seoos-api
+
+[Install]
+WantedBy=multi-user.target

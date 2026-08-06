@@ -1,0 +1,19 @@
+[Unit]
+Description=AI SEO OS — nightly backup timer
+Documentation=file:///opt/seoos/app/deploy/README.md
+
+[Timer]
+# 03:30 UTC = 09:00 IST. Deliberately after the nightly sync window: syncs fire
+# at 02:00 Asia/Kolkata (20:30 UTC) and each site carries a deterministic offset
+# of 0-239 minutes, so the last one can land as late as 00:30 UTC. Backing up
+# before that finishes captures a half-synced database.
+OnCalendar=*-*-* 03:30:00 UTC
+
+# Server was off at 03:30 — run on next boot rather than skipping the day.
+Persistent=true
+
+# Nothing else is competing at this hour, but a small jitter costs nothing.
+RandomizedDelaySec=300
+
+[Install]
+WantedBy=timers.target
