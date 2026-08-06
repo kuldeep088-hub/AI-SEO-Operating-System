@@ -1,41 +1,121 @@
 @import "tailwindcss";
 
 /* Design tokens from DESIGN.md — "Linear — midnight precision instrument".
-   Dark by default: the canvas is #08090a and darkness is the substrate, not a
-   theme toggle. Elevation comes from hairline borders and surface-level
-   progression, never from layered drop shadows. */
+   Elevation comes from hairline borders and surface-level progression, never
+   from layered drop shadows.
+
+   ── On having a light theme at all ──────────────────────────────────────────
+   DESIGN.md specifies "Theme: dark" and says the system "treats darkness as a
+   substrate rather than a theme". There is no light palette in it. The light
+   values below are therefore a derivation, not a quotation: each one keeps its
+   token's *role* (canvas, one step up, hairline, muted text) and inverts the
+   luminance ramp, holding the acid-lime accent constant because it is the one
+   colour the brand is built around. Dark remains the default and the designed
+   intent; light is an accommodation.
+
+   ── Why two layers of variable ──────────────────────────────────────────────
+   The raw palette below is literal — `--paper` really is white. Components do
+   NOT use those names, because `text-paper` rendering near-black under a light
+   theme is exactly the sort of thing that rots a codebase. Components use the
+   semantic layer (`text-title`, `bg-surface`, `border-line`), which points at
+   whichever raw value the active theme selects. */
+
+:root {
+  /* Raw palette — DESIGN.md §Tokens, unmodified. */
+  --void: #08090a;
+  --carbon: #0f1011;
+  --obsidian: #161718;
+  --slate: #23252a;
+  --graphite: #23252a;
+  --smoke: #383b3f;
+  --ash: #62666d;
+  --fog: #8a8f98;
+  --mist: #d0d6e0;
+  --bone: #e5e5e6;
+  --paper: #ffffff;
+  --acid-lime: #e4f222;
+
+  /* Semantic layer — dark, the designed default. */
+  --canvas: var(--void);
+  --surface: var(--carbon);
+  --surface-2: var(--obsidian);
+  --surface-3: var(--slate);
+  --line: var(--graphite);
+  --line-strong: var(--smoke);
+  --text-title: var(--paper);
+  --text-strong: var(--bone);
+  --text-body: var(--mist);
+  --text-subtle: var(--fog);
+  --text-muted: var(--ash);
+  --accent: var(--acid-lime);
+  --on-accent: var(--void);
+  --fill-subtle: rgb(255 255 255 / 0.05);
+  /* The neutral high-contrast pill (DESIGN.md "Sign-up Button"). It has to
+     flip with the theme: a white pill on a white page is invisible. */
+  --inverse: var(--paper);
+  --on-inverse: var(--void);
+  --positive: #27a644;
+  --negative: #eb5757;
+  --hairline-ring: rgb(35 37 42);
+  --gradient-floor: linear-gradient(to bottom, rgb(8 9 10) 10%, rgb(208 214 224) 100%);
+}
+
+:root[data-theme="light"] {
+  /* Luminance ramp inverted, roles preserved. The accent does not move. */
+  --canvas: #ffffff;
+  --surface: #fafafa;
+  --surface-2: #f4f4f5;
+  --surface-3: #e9e9ec;
+  --line: #e4e4e7;
+  --line-strong: #d4d4d8;
+  --text-title: #08090a;
+  --text-strong: #18181b;
+  --text-body: #3f3f46;
+  --text-subtle: #52525b;
+  --text-muted: #71717a;
+  --accent: var(--acid-lime);
+  --on-accent: var(--void);
+  --fill-subtle: rgb(0 0 0 / 0.04);
+  --inverse: var(--void);
+  --on-inverse: var(--paper);
+  /* Darkened from the dark-theme values: #27a644 and #eb5757 both fall below
+     4.5:1 against white, so the same hues are taken down until they pass. */
+  --positive: #15803d;
+  --negative: #c81e1e;
+  --hairline-ring: rgb(228 228 231);
+  --gradient-floor: linear-gradient(to bottom, rgb(255 255 255) 10%, rgb(212 212 216) 100%);
+}
 
 @theme {
-  /* ── Surfaces ────────────────────────────────────────────────
-     A four-step ladder. Anything that needs to sit "above" something
-     else moves one step up this list — it does not gain a shadow. */
-  --color-void: #08090a;        /* 0 — page canvas */
-  --color-carbon: #0f1011;      /* 1 — cards, nav bars */
-  --color-obsidian: #161718;    /* 2 — elevated panels */
-  --color-slate: #23252a;       /* 3 — interactive tint */
+  /* Semantic tokens — what components actually reference. */
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-title: var(--text-title);
+  --color-strong: var(--text-strong);
+  --color-body: var(--text-body);
+  --color-subtle: var(--text-subtle);
+  --color-muted: var(--text-muted);
+  --color-accent: var(--accent);
+  --color-on-accent: var(--on-accent);
+  --color-fill-subtle: var(--fill-subtle);
+  --color-inverse: var(--inverse);
+  --color-on-inverse: var(--on-inverse);
+  --color-positive: var(--positive);
+  --color-negative: var(--negative);
 
-  /* ── Borders ────────────────────────────────────────────────
-     These do the work shadows would do elsewhere. */
-  --color-graphite: #23252a;    /* structural edges, ghost outlines */
-  --color-smoke: #383b3f;       /* higher-contrast section separators */
+  /* Supporting chromatic punctuation for tags and badges. DESIGN.md is
+     explicit that these are NOT status colours — the semantic
+     --color-positive / --color-negative above are what status uses, and
+     those are the only two that shift between themes for contrast.
 
-  /* ── Text ───────────────────────────────────────────────────
-     All body copy lives in this grey ramp. DESIGN.md is explicit that
-     chromatic text colours are never used for body copy. */
-  --color-ash: #62666d;         /* muted, inactive */
-  --color-fog: #8a8f98;         /* tertiary, placeholder */
-  --color-mist: #d0d6e0;        /* body, secondary headings */
-  --color-bone: #e5e5e6;        /* high-contrast button text */
-  --color-paper: #ffffff;       /* primary headings, max emphasis */
-
-  /* ── Accents ────────────────────────────────────────────────
-     Acid lime is the single chromatic UI element in the system: one
-     primary action per view, never decoration, never a secondary button.
-     The rest are supporting punctuation on tags and badges — DESIGN.md
-     specifically says pulse-green and coral-red are NOT status colours. */
-  --color-acid-lime: #e4f222;
-  --color-pulse-green: #27a644;
-  --color-coral-red: #eb5757;
+     The literal palette names (void, carbon, paper …) are deliberately
+     NOT exposed as utilities. Everything routes through the semantic
+     layer so that adding the light theme could not leave a `bg-void`
+     stranded at near-black on a white page. */
   --color-signal-teal: #02b8cc;
   --color-iris-violet: #6366f1;
   --color-lavender: #8b5cf6;
@@ -61,7 +141,7 @@
   /* ── Shadows ────────────────────────────────────────────────
      Deliberately sparse. `hairline` is the workhorse and is an inset
      ring, not a drop shadow. */
-  --shadow-hairline: rgb(35 37 42) 0 0 0 1px inset;
+  --shadow-hairline: var(--hairline-ring) 0 0 0 1px inset;
   --shadow-sm: rgb(0 0 0 / 0.4) 0 2px 4px 0;
   --shadow-xl: rgb(8 9 10 / 0.6) 0 4px 32px 0;
   /* The one place a real shadow lands on chrome: the acid-lime CTA. */
@@ -200,26 +280,39 @@
 
 /* The standard card: one surface step up, hairline inset ring, no glow. */
 @utility card {
-  background: var(--color-carbon);
+  background: var(--surface);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-hairline);
 }
 
 /* Almost invisible — barely separates from the canvas. */
 @utility card-subtle {
-  background: rgb(255 255 255 / 0.02);
+  background: var(--fill-subtle);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-sm);
 }
 
+/* The atmospheric wash under the hero's product frame — DESIGN.md
+   "Hero Gradient Floor". The only gradient in the system; the doc is
+   explicit that buttons, cards and text never get one. */
+@utility gradient-floor {
+  background: var(--gradient-floor);
+}
+
 html {
-  background: var(--color-void);
+  background: var(--canvas);
+  /* Follows the active theme so form controls, scrollbars and the
+     browser's own chrome match instead of staying stuck on dark. */
   color-scheme: dark;
 }
 
+html[data-theme="light"] {
+  color-scheme: light;
+}
+
 body {
-  background: var(--color-void);
-  color: var(--color-mist);
+  background: var(--canvas);
+  color: var(--text-body);
   font-family: var(--font-sans);
   /* These alternate glyphs are described in DESIGN.md as defining the
      typographic identity: cv01 (single-storey a), ss03, slashed zero. */
@@ -229,11 +322,33 @@ body {
 }
 
 ::selection {
-  background: var(--color-acid-lime);
-  color: var(--color-void);
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+/* Theme switching repaints the whole page. Without this the transition
+   is a hard flash; with it, chrome cross-fades. Kept to colour only —
+   transitioning layout properties here would make every navigation
+   feel laggy. Respects a reduced-motion preference. */
+@media (prefers-reduced-motion: no-preference) {
+  body,
+  header,
+  footer,
+  section,
+  article {
+    transition: background-color 150ms ease, border-color 150ms ease,
+      color 150ms ease;
+  }
 }
 
 /* Numbers that get compared column-to-column must not shift width. */
 .tnum {
   font-variant-numeric: tabular-nums;
+}
+
+/* The FAQ's <details> disclosure triangle. `list-style: none` on the summary
+   handles Chrome and Firefox; Safari ignores it and keeps drawing its own
+   marker next to our "+" glyph, so it needs this second rule. */
+summary::-webkit-details-marker {
+  display: none;
 }

@@ -33,27 +33,27 @@ export default async function Connect({
 
   return (
     <div className="min-h-screen">
-      <header className="h-16 border-b border-graphite bg-void">
+      <header className="h-16 border-b border-line bg-canvas">
         <div className="mx-auto flex h-full max-w-3xl items-center justify-between px-6">
-          <Link href="/" className="body-sm text-paper">
+          <Link href="/" className="body-sm text-title">
             ← Dashboard
           </Link>
-          <span className="mono-label text-ash">{principal.orgName}</span>
+          <span className="mono-label text-muted">{principal.orgName}</span>
         </div>
       </header>
 
       <main className="mx-auto max-w-3xl px-6 py-12">
-        <p className="mono-label mb-3 uppercase text-ash">Connect</p>
-        <h1 className="subheading text-paper">Add a client site.</h1>
-        <p className="body-base mt-3 text-fog">
+        <p className="mono-label mb-3 uppercase text-muted">Connect</p>
+        <h1 className="subheading text-title">Add a client site.</h1>
+        <p className="body-base mt-3 text-subtle">
           Pull real rankings and traffic from Search Console and Analytics. Your
           Google account must already have access to the properties.
         </p>
 
         {!granted ? (
-          <section className="mt-10 rounded-lg border border-graphite bg-carbon p-6">
-            <h2 className="body-emphasis text-paper">Grant data access</h2>
-            <p className="body-sm mt-2 text-fog">
+          <section className="mt-10 rounded-lg border border-line bg-surface p-6">
+            <h2 className="body-emphasis text-title">Grant data access</h2>
+            <p className="body-sm mt-2 text-subtle">
               Signing in only gave us your email. Reading a client&apos;s data
               needs two more scopes, requested separately so you can see exactly
               what they are.
@@ -61,21 +61,21 @@ export default async function Connect({
 
             <ul className="mt-5 space-y-3">
               <li className="flex gap-3">
-                <span className="mono-label mt-0.5 text-ash">01</span>
+                <span className="mono-label mt-0.5 text-muted">01</span>
                 <div>
-                  <p className="body-sm text-paper">
+                  <p className="body-sm text-title">
                     Search Console — read only
                   </p>
-                  <p className="body-sm text-fog">
+                  <p className="body-sm text-subtle">
                     Queries, positions, clicks, impressions. 16 months of history.
                   </p>
                 </div>
               </li>
               <li className="flex gap-3">
-                <span className="mono-label mt-0.5 text-ash">02</span>
+                <span className="mono-label mt-0.5 text-muted">02</span>
                 <div>
-                  <p className="body-sm text-paper">Analytics — read only</p>
-                  <p className="body-sm text-fog">
+                  <p className="body-sm text-title">Analytics — read only</p>
+                  <p className="body-sm text-subtle">
                     Sessions, conversions and revenue, joined to rankings by
                     landing page.
                   </p>
@@ -85,12 +85,12 @@ export default async function Connect({
 
             <a
               href={`${apiUrl}/v1/google/grant`}
-              className="card mt-6 inline-flex h-10 items-center rounded-md bg-acid-lime px-4 text-void transition-opacity hover:opacity-90"
+              className="card mt-6 inline-flex h-10 items-center rounded-md bg-accent px-4 text-on-accent transition-opacity hover:opacity-90"
             >
               <span className="body-sm">Grant access</span>
             </a>
 
-            <p className="caption mt-4 text-ash">
+            <p className="caption mt-4 text-muted">
               Read-only. Nothing is written to your Google account, and no data
               leaves this machine.
             </p>
@@ -112,10 +112,10 @@ export default async function Connect({
             )}
 
             <div className="mt-8 flex items-center gap-2">
-              <span className="mono-label rounded-full bg-slate px-2 py-1 text-fog">
+              <span className="mono-label rounded-full bg-surface-3 px-2 py-1 text-subtle">
                 {connection.account_email}
               </span>
-              <span className="mono-label text-ash">
+              <span className="mono-label text-muted">
                 {hasGsc ? "Search Console ✓" : "Search Console ✗"} ·{" "}
                 {hasGa4 ? "Analytics ✓" : "Analytics ✗"}
               </span>

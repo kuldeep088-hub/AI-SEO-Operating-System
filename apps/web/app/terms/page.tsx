@@ -72,7 +72,7 @@ export default function Terms() {
           You keep all rights to the data you connect and anything the app
           derives from it. We claim no ownership. Our handling of it is described
           in the{" "}
-          <Link href="/privacy" className="text-mist underline underline-offset-2 hover:text-paper">
+          <Link href="/privacy" className="text-body underline underline-offset-2 hover:text-title">
             privacy policy
           </Link>
           , which forms part of these terms.

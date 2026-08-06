@@ -40,20 +40,20 @@ export default async function Login({
   const apiUp = await isApiUp(apiUrl);
 
   return (
-    <div className="flex min-h-screen flex-col bg-void">
+    <div className="flex min-h-screen flex-col bg-canvas">
       <PublicHeader />
 
       <main className="flex flex-1 items-center justify-center px-6 py-20">
         <div className="w-full max-w-[420px]">
-          <h1 className="subheading text-paper">Sign in.</h1>
-          <p className="body-sm mt-4 text-fog">
+          <h1 className="subheading text-title">Sign in.</h1>
+          <p className="body-sm mt-4 text-subtle">
             Search Console and Analytics for every client site, in one place,
             refreshed nightly.
           </p>
 
           {error === "demo_expired" && (
-            <div className="mt-8 rounded-md border border-graphite bg-white/[0.02] px-4 py-3">
-              <p className="body-sm text-coral-red">
+            <div className="mt-8 rounded-md border border-line bg-fill-subtle px-4 py-3">
+              <p className="body-sm text-negative">
                 That demo link has expired. Generate a new one with{" "}
                 <code className="mono-label">scripts/seed_demo.py</code>.
               </p>
@@ -61,8 +61,8 @@ export default async function Login({
           )}
 
           {!apiUp && (
-            <div className="mt-8 rounded-md border border-graphite bg-white/[0.02] px-4 py-3">
-              <p className="body-sm text-coral-red">
+            <div className="mt-8 rounded-md border border-line bg-fill-subtle px-4 py-3">
+              <p className="body-sm text-negative">
                 The API isn&apos;t running, so sign-in can&apos;t start. Stop this
                 server and run <code className="mono-label">./run.sh</code> from
                 the project root — it starts Postgres, the API, the worker and
@@ -75,7 +75,7 @@ export default async function Login({
           {apiUp ? (
             <a
               href={`${apiUrl}/v1/auth/google/start`}
-              className="mt-10 flex h-11 w-full items-center justify-center rounded-md bg-acid-lime text-void transition-opacity hover:opacity-90"
+              className="mt-10 flex h-11 w-full items-center justify-center rounded-md bg-accent text-on-accent transition-opacity hover:opacity-90"
               style={{
                 fontSize: 14,
                 fontWeight: 510,
@@ -88,35 +88,35 @@ export default async function Login({
           ) : (
             <button
               disabled
-              className="mt-10 flex h-11 w-full cursor-not-allowed items-center justify-center rounded-md border border-graphite bg-transparent text-ash"
+              className="mt-10 flex h-11 w-full cursor-not-allowed items-center justify-center rounded-md border border-line bg-transparent text-muted"
               style={{ fontSize: 14, fontWeight: 510 }}
             >
               Continue with Google
             </button>
           )}
 
-          <div className="mt-12 space-y-6 border-t border-graphite pt-8">
+          <div className="mt-12 space-y-6 border-t border-line pt-8">
             <div>
-              <p className="mono-label uppercase text-fog">Scopes</p>
-              <p className="body-sm mt-2 text-ash">
+              <p className="mono-label uppercase text-subtle">Scopes</p>
+              <p className="body-sm mt-2 text-muted">
                 Only email and profile, to sign you in. Search Console and
                 Analytics access is requested separately, later, on a screen that
                 explains each one.
               </p>
             </div>
             <div>
-              <p className="mono-label uppercase text-fog">Data</p>
+              <p className="mono-label uppercase text-subtle">Data</p>
               {/* This used to read "never leaves this machine", which was true
                   of a laptop install and false the moment the app is hosted for
                   other people. Claims on a sign-in screen are read by Google's
                   reviewers too, so it now says something true of both. */}
-              <p className="body-sm mt-2 text-ash">
+              <p className="body-sm mt-2 text-muted">
                 Read-only access, never sold or shared. The only outbound calls
                 carrying your data are to Google&apos;s own APIs, using access
                 you grant — see the{" "}
                 <Link
                   href="/privacy"
-                  className="text-mist underline underline-offset-2 hover:text-paper"
+                  className="text-body underline underline-offset-2 hover:text-title"
                 >
                   privacy policy
                 </Link>

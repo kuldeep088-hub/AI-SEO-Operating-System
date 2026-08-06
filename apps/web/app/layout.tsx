@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 
+import { THEME_INIT_SCRIPT } from "@/components/theme-toggle";
+
 import "./globals.css";
 
 /* DESIGN.md names Inter Variable and Berkeley Mono. Berkeley Mono is a paid
@@ -34,13 +36,21 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
+    // suppressHydrationWarning: THEME_INIT_SCRIPT sets data-theme on this
+    // element before React hydrates, so the client's attributes intentionally
+    // differ from the server's markup. Without it React logs a mismatch on
+    // every page load.
     <html
       lang="en"
       className={`${inter.variable} ${jetbrainsMono.variable}`}
-      // The system has no light mode — darkness is the substrate, not a
-      // theme. Declaring it stops the browser painting white on first frame.
-      style={{ colorScheme: "dark" }}
+      data-theme="dark"
+      suppressHydrationWarning
     >
+      <head>
+        {/* Must run before first paint — see THEME_INIT_SCRIPT. Placing it in
+            <body>, or shipping it in the bundle, reintroduces the flash. */}
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+      </head>
       <body className="min-h-screen">{children}</body>
     </html>
   );

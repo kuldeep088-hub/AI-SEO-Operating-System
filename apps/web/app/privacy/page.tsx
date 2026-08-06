@@ -43,8 +43,8 @@ export default function Privacy() {
         <ul className="space-y-4">
           {SCOPES.map((s) => (
             <li key={s.scope}>
-              <span className="body-sm text-paper">{s.label}</span>
-              <span className="mono-label ml-2 text-ash">{s.scope}</span>
+              <span className="body-sm text-title">{s.label}</span>
+              <span className="mono-label ml-2 text-muted">{s.scope}</span>
               <p className="mt-1">{s.why}</p>
             </li>
           ))}

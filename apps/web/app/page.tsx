@@ -1,4 +1,5 @@
 import { MarketingHome } from "@/components/marketing-home";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { tenantQuery } from "@/lib/db";
 import { getPrincipal } from "@/lib/session";
 
@@ -29,10 +30,10 @@ function pctChange(now: number, prev: number): number | null {
  * direction survives for anyone who cannot distinguish the two hues.
  */
 function Delta({ value }: { value: number | null }) {
-  if (value === null) return <span className="text-ash">—</span>;
+  if (value === null) return <span className="text-muted">—</span>;
   const up = value >= 0;
   return (
-    <span className={up ? "text-pulse-green" : "text-coral-red"}>
+    <span className={up ? "text-positive" : "text-negative"}>
       {up ? "↑" : "↓"} {Math.abs(value).toFixed(1)}%
     </span>
   );
@@ -78,7 +79,7 @@ export default async function Dashboard() {
   return (
     <div className="min-h-screen">
       {/* Fixed top bar, left logo, right links, no sidebar — DESIGN.md §Layout. */}
-      <header className="sticky top-0 z-10 h-16 border-b border-graphite bg-void/80 backdrop-blur-md">
+      <header className="sticky top-0 z-10 h-16 border-b border-line bg-canvas/80 backdrop-blur-md">
         <div className="mx-auto flex h-full max-w-[1200px] items-center justify-between px-6">
           <div className="flex items-center gap-3">
             {/* The logo mark is a white glyph, not a lime chip. Acid lime is
@@ -91,20 +92,21 @@ export default async function Dashboard() {
                 fill="none"
                 stroke="currentColor"
                 strokeWidth="1.5"
-                className="text-paper"
+                className="text-title"
               />
             </svg>
-            <span className="body-sm text-paper">{principal.orgName}</span>
-            <span className="label rounded-sm bg-white/5 px-1.5 py-0.5 text-fog">
+            <span className="body-sm text-title">{principal.orgName}</span>
+            <span className="label rounded-sm bg-fill-subtle px-1.5 py-0.5 text-subtle">
               {principal.role}
             </span>
           </div>
           <div className="flex items-center gap-3">
-            <span className="caption hidden text-ash sm:inline">
+            <span className="caption hidden text-muted sm:inline">
               {principal.email}
             </span>
+            <ThemeToggle />
             <form action={`${process.env.API_URL}/v1/auth/logout`} method="post">
-              <button className="caption h-8 rounded-md border border-graphite px-3 text-mist transition-colors hover:border-smoke hover:text-paper">
+              <button className="caption h-8 rounded-md border border-line px-3 text-body transition-colors hover:border-line-strong hover:text-title">
                 Sign out
               </button>
             </form>
@@ -115,7 +117,7 @@ export default async function Dashboard() {
                 intended second-highest-contrast element for exactly this. */}
             <a
               href="/connect"
-              className="flex h-8 items-center rounded-full bg-paper px-4 text-void transition-opacity hover:opacity-90"
+              className="flex h-8 items-center rounded-full bg-inverse px-4 text-on-inverse transition-opacity hover:opacity-90"
               style={{ fontSize: 13, fontWeight: 510, letterSpacing: "-0.011em" }}
             >
               Connect a site
@@ -130,18 +132,18 @@ export default async function Dashboard() {
         ) : (
           <>
             <div className="mb-10">
-              <p className="mono-label mb-3 uppercase text-ash">Overview</p>
-              <h1 className="subheading text-paper">
+              <p className="mono-label mb-3 uppercase text-muted">Overview</p>
+              <h1 className="subheading text-title">
                 {clients} client{clients === 1 ? "" : "s"}, {sites.length} site
                 {sites.length === 1 ? "" : "s"}.
               </h1>
-              <p className="body-base mt-2 text-fog">
+              <p className="body-base mt-2 text-subtle">
                 Search Console and Analytics for the last 28 days.
               </p>
             </div>
 
             {/* Stat row — card-soft chrome */}
-            <section className="mb-12 grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-graphite bg-graphite md:grid-cols-4">
+            <section className="mb-12 grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-line bg-line md:grid-cols-4">
               <Stat label="Clicks" value={totalClicks.toLocaleString()}>
                 <Delta value={pctChange(totalClicks, totalPrev)} />
               </Stat>
@@ -159,7 +161,7 @@ export default async function Dashboard() {
 
             {attention.length > 0 && (
               <section className="mb-12">
-                <p className="mono-label mb-4 uppercase text-ash">Needs attention</p>
+                <p className="mono-label mb-4 uppercase text-muted">Needs attention</p>
                 <div className="grid gap-4 md:grid-cols-2">
                   {attention.map((s) => (
                     <SiteCard key={s.site_id} site={s} />
@@ -170,21 +172,21 @@ export default async function Dashboard() {
 
             {healthy.length > 0 && (
               <section className="mb-12">
-                <p className="mono-label mb-4 uppercase text-ash">Healthy</p>
-                <div className="overflow-hidden rounded-lg border border-graphite bg-carbon">
+                <p className="mono-label mb-4 uppercase text-muted">Healthy</p>
+                <div className="overflow-hidden rounded-lg border border-line bg-surface">
                   <table className="w-full">
                     <thead>
-                      <tr className="border-b border-graphite bg-obsidian">
-                        <th className="mono-label px-4 py-2.5 text-left uppercase text-ash">
+                      <tr className="border-b border-line bg-surface-2">
+                        <th className="mono-label px-4 py-2.5 text-left uppercase text-muted">
                           Client
                         </th>
-                        <th className="mono-label px-4 py-2.5 text-left uppercase text-ash">
+                        <th className="mono-label px-4 py-2.5 text-left uppercase text-muted">
                           Domain
                         </th>
-                        <th className="mono-label px-4 py-2.5 text-right uppercase text-ash">
+                        <th className="mono-label px-4 py-2.5 text-right uppercase text-muted">
                           Clicks
                         </th>
-                        <th className="mono-label px-4 py-2.5 text-right uppercase text-ash">
+                        <th className="mono-label px-4 py-2.5 text-right uppercase text-muted">
                           28d
                         </th>
                       </tr>
@@ -193,13 +195,13 @@ export default async function Dashboard() {
                       {healthy.map((s, i) => (
                         <tr
                           key={s.site_id}
-                          className={i > 0 ? "border-t border-graphite" : ""}
+                          className={i > 0 ? "border-t border-line" : ""}
                         >
-                          <td className="body-sm px-4 py-3 text-paper">
+                          <td className="body-sm px-4 py-3 text-title">
                             {s.client_name}
                           </td>
-                          <td className="body-sm px-4 py-3 text-fog">{s.domain}</td>
-                          <td className="body-sm tnum px-4 py-3 text-right text-paper">
+                          <td className="body-sm px-4 py-3 text-subtle">{s.domain}</td>
+                          <td className="body-sm tnum px-4 py-3 text-right text-title">
                             {Number(s.clicks_28d).toLocaleString()}
                           </td>
                           <td className="body-sm tnum px-4 py-3 text-right">
@@ -218,8 +220,8 @@ export default async function Dashboard() {
               </section>
             )}
 
-            <footer className="border-t border-graphite pt-6">
-              <p className="body-sm text-ash">
+            <footer className="border-t border-line pt-6">
+              <p className="body-sm text-muted">
                 Phase 0 — schema, tenancy, row-level security, and authentication
                 are live. Search Console sync, the technical scanner, and AI
                 reporting are Phase 1.
@@ -244,10 +246,10 @@ function Stat({
   children?: React.ReactNode;
 }) {
   return (
-    <div className="bg-carbon px-5 py-4">
-      <p className="mono-label uppercase text-ash">{label}</p>
+    <div className="bg-surface px-5 py-4">
+      <p className="mono-label uppercase text-muted">{label}</p>
       <p
-        className={`heading tnum mt-2 ${tone === "error" ? "text-coral-red" : "text-paper"}`}
+        className={`heading tnum mt-2 ${tone === "error" ? "text-negative" : "text-title"}`}
       >
         {value}
       </p>
@@ -264,18 +266,18 @@ function SiteCard({ site }: { site: SiteRow }) {
     <article className="card p-6">
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
-          <h2 className="body-emphasis truncate text-paper">{site.client_name}</h2>
-          <p className="mono-label mt-1 truncate text-ash">{site.domain}</p>
+          <h2 className="body-emphasis truncate text-title">{site.client_name}</h2>
+          <p className="mono-label mt-1 truncate text-muted">{site.domain}</p>
         </div>
-        <span className="label shrink-0 rounded-sm bg-coral-red/10 px-1.5 py-0.5 text-coral-red">
+        <span className="label shrink-0 rounded-sm bg-negative/10 px-1.5 py-0.5 text-negative">
           {site.critical_issues} critical
         </span>
       </div>
 
       <dl className="mt-6 grid grid-cols-3 gap-4">
         <div>
-          <dt className="mono-label uppercase text-ash">Clicks</dt>
-          <dd className="body-base tnum mt-1 text-paper">
+          <dt className="mono-label uppercase text-muted">Clicks</dt>
+          <dd className="body-base tnum mt-1 text-title">
             {Number(site.clicks_28d).toLocaleString()}
           </dd>
           <dd className="body-sm tnum">
@@ -283,14 +285,14 @@ function SiteCard({ site }: { site: SiteRow }) {
           </dd>
         </div>
         <div>
-          <dt className="mono-label uppercase text-ash">Impressions</dt>
-          <dd className="body-base tnum mt-1 text-paper">
+          <dt className="mono-label uppercase text-muted">Impressions</dt>
+          <dd className="body-base tnum mt-1 text-title">
             {Number(site.impressions_28d).toLocaleString()}
           </dd>
         </div>
         <div>
-          <dt className="mono-label uppercase text-ash">Avg pos</dt>
-          <dd className="body-base tnum mt-1 text-paper">
+          <dt className="mono-label uppercase text-muted">Avg pos</dt>
+          <dd className="body-base tnum mt-1 text-title">
             {site.avg_position_28d ? Number(site.avg_position_28d).toFixed(1) : "—"}
           </dd>
         </div>
@@ -302,21 +304,21 @@ function SiteCard({ site }: { site: SiteRow }) {
 function EmptyState() {
   return (
     <div className="card px-8 py-20 text-center">
-      <h2 className="heading text-paper">No clients yet.</h2>
-      <p className="body-sm mx-auto mt-3 max-w-md text-fog">
+      <h2 className="heading text-title">No clients yet.</h2>
+      <p className="body-sm mx-auto mt-3 max-w-md text-subtle">
         Phase 0 is complete — authentication, tenancy, and the full schema are
         live. Connecting Search Console is Phase 1.
       </p>
       <a
         href="/connect"
-        className="mt-8 inline-flex h-10 items-center rounded-md bg-acid-lime px-4 text-void transition-opacity hover:opacity-90"
+        className="mt-8 inline-flex h-10 items-center rounded-md bg-accent px-4 text-on-accent transition-opacity hover:opacity-90"
         style={{ fontSize: 14, fontWeight: 510, letterSpacing: "-0.011em" }}
       >
         Connect Search Console
       </a>
-      <p className="body-sm mx-auto mt-6 max-w-md text-ash">
+      <p className="body-sm mx-auto mt-6 max-w-md text-muted">
         Or load sample data with{" "}
-        <code className="mono-label rounded-sm bg-white/5 px-1.5 py-0.5 text-mist">
+        <code className="mono-label rounded-sm bg-fill-subtle px-1.5 py-0.5 text-body">
           uv run python scripts/seed_demo.py
         </code>
       </p>

@@ -12,6 +12,7 @@
  */
 import Link from "next/link";
 
+import { ThemeToggle } from "@/components/theme-toggle";
 import { COMPANY } from "@/lib/company";
 
 function LogoMark() {
@@ -24,10 +25,10 @@ function LogoMark() {
           fill="none"
           stroke="currentColor"
           strokeWidth="1.5"
-          className="text-paper"
+          className="text-title"
         />
       </svg>
-      <span className="text-paper" style={{ fontSize: 16, fontWeight: 510 }}>
+      <span className="text-title" style={{ fontSize: 16, fontWeight: 510 }}>
         {COMPANY.appShortName}
       </span>
     </Link>
@@ -36,27 +37,28 @@ function LogoMark() {
 
 export function PublicHeader() {
   return (
-    <header className="border-b border-graphite bg-void">
+    <header className="border-b border-line bg-canvas">
       <nav className="mx-auto flex h-16 max-w-[1200px] items-center justify-between px-6">
         <LogoMark />
         <div className="flex items-center gap-2">
           <Link
             href="/privacy"
-            className="caption rounded-md px-3 py-2 text-mist transition-colors hover:text-paper"
+            className="caption rounded-md px-3 py-2 text-body transition-colors hover:text-title"
           >
             Privacy
           </Link>
           <Link
             href="/terms"
-            className="caption rounded-md px-3 py-2 text-mist transition-colors hover:text-paper"
+            className="caption rounded-md px-3 py-2 text-body transition-colors hover:text-title"
           >
             Terms
           </Link>
+          <ThemeToggle />
           {/* Neutral white pill — the nav CTA. The acid-lime button is
               reserved for the single primary action on the page itself. */}
           <Link
             href="/login"
-            className="ml-2 flex h-9 items-center rounded-full bg-paper px-4 text-void transition-opacity hover:opacity-90"
+            className="ml-2 flex h-9 items-center rounded-full bg-inverse px-4 text-on-inverse transition-opacity hover:opacity-90"
             style={{ fontSize: 13, fontWeight: 510 }}
           >
             Sign in
@@ -69,22 +71,22 @@ export function PublicHeader() {
 
 export function PublicFooter() {
   return (
-    <footer className="border-t border-graphite bg-void">
+    <footer className="border-t border-line bg-canvas">
       <div className="mx-auto max-w-[1200px] px-6 py-10">
         <div className="flex flex-wrap items-center justify-between gap-4">
-          <p className="caption text-ash">
+          <p className="caption text-muted">
             {COMPANY.appName} · {COMPANY.lastUpdated.slice(-4)}
           </p>
           <div className="flex flex-wrap items-center gap-6">
-            <Link href="/privacy" className="caption text-fog hover:text-mist">
+            <Link href="/privacy" className="caption text-subtle hover:text-body">
               Privacy policy
             </Link>
-            <Link href="/terms" className="caption text-fog hover:text-mist">
+            <Link href="/terms" className="caption text-subtle hover:text-body">
               Terms of service
             </Link>
             <a
               href={`mailto:${COMPANY.contactEmail}`}
-              className="caption text-fog hover:text-mist"
+              className="caption text-subtle hover:text-body"
             >
               Contact
             </a>
@@ -104,12 +106,12 @@ export function LegalPage({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-void">
+    <div className="min-h-screen bg-canvas">
       <PublicHeader />
       <main className="mx-auto max-w-3xl px-6 py-20">
-        <p className="mono-label uppercase text-fog">Legal</p>
-        <h1 className="subheading mt-3 text-paper">{title}</h1>
-        <p className="caption mt-3 text-ash">
+        <p className="mono-label uppercase text-subtle">Legal</p>
+        <h1 className="subheading mt-3 text-title">{title}</h1>
+        <p className="caption mt-3 text-muted">
           Last updated {COMPANY.lastUpdated}
         </p>
         <div className="mt-14 space-y-10">{children}</div>
@@ -129,8 +131,8 @@ export function Section({
 }) {
   return (
     <section>
-      <h2 className="heading text-paper">{heading}</h2>
-      <div className="mt-4 space-y-3 [&_a]:text-mist [&_a]:underline [&_a]:underline-offset-2 hover:[&_a]:text-paper [&_li]:body-sm [&_li]:text-fog [&_p]:body-sm [&_p]:text-fog">
+      <h2 className="heading text-title">{heading}</h2>
+      <div className="mt-4 space-y-3 [&_a]:text-body [&_a]:underline [&_a]:underline-offset-2 hover:[&_a]:text-title [&_li]:body-sm [&_li]:text-subtle [&_p]:body-sm [&_p]:text-subtle">
         {children}
       </div>
     </section>
