@@ -158,7 +158,7 @@ trivially avoidable.
 | Environment | Purpose | Differences |
 |---|---|---|
 | `dev` | Daily work | Next dev server (HMR), verbose logging, seeded demo data available |
-| `prod-local` | Anuj's real client data | `next build && next start`, JSON logs, real OAuth credentials |
+| `prod-local` | real client data | `next build && next start`, JSON logs, real OAuth credentials |
 
 `prod-local` is the deployment that matters. `NODE_ENV=production` plus `next build` roughly
 halves memory and makes page loads noticeably faster — worth it for something used daily.
@@ -289,7 +289,7 @@ jobs:
         with:
           apiToken: ${{ secrets.CF_API_TOKEN }}
           accountId: ${{ secrets.CF_ACCOUNT_ID }}
-          projectName: growleads-seo-tools
+          projectName: ai-seo-tools
           directory: apps/tools-site/dist
 ```
 

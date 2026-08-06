@@ -2,7 +2,7 @@
 
 **A complete SEO platform that runs entirely on your own machine. $0/month, unlimited clients.**
 
-Built for Growleads Agency. Replaces Ahrefs, Semrush, Surfer, Screaming Frog, and
+Built for SEO agencies. Replaces Ahrefs, Semrush, Surfer, Screaming Frog, and
 AgencyAnalytics with one local dashboard driven by a local AI model.
 
 ```

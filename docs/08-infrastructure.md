@@ -430,7 +430,7 @@ CRAWL_DEFAULTS = {
     "max_concurrent_per_host": 2,
     "respect_robots": True,
     "respect_crawl_delay": True,   # robots.txt Crawl-delay overrides ours
-    "user_agent": "SEO-OS/1.0 (+https://growleadsagency.com/bot)",
+    "user_agent": "SEO-OS/1.0 (+https://example.com/bot)",
     "timeout_s": 20,
     "max_retries": 2,
 }

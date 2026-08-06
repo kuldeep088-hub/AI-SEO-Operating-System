@@ -84,23 +84,23 @@ export function ConnectForm({ apiUrl }: { apiUrl: string }) {
 
   if (loading) {
     return (
-      <p className="body-sm mt-10 text-mute">Loading your Google properties…</p>
+      <p className="body-sm mt-10 text-ash">Loading your Google properties…</p>
     );
   }
 
   if (done) {
     return (
-      <section className="mt-10 rounded-md border border-hairline bg-canvas p-6">
-        <h2 className="display-sm text-ink">Connected.</h2>
-        <p className="body-md mt-2 text-body">
+      <section className="mt-10 rounded-lg border border-graphite bg-carbon p-6">
+        <h2 className="body-emphasis text-paper">Connected.</h2>
+        <p className="body-base mt-2 text-fog">
           Backfilling up to 16 months of history now. It runs in the background —
           the dashboard fills in as data lands.
         </p>
         <Link
           href="/"
-          className="elevate-1 mt-6 inline-flex h-10 items-center rounded-sm bg-primary px-4 text-on-primary"
+          className="mt-6 inline-flex h-10 items-center rounded-md bg-acid-lime px-4 text-void transition-opacity hover:opacity-90"
         >
-          <span className="body-sm-strong">Open dashboard</span>
+          <span className="body-sm">Open dashboard</span>
         </Link>
       </section>
     );
@@ -111,8 +111,8 @@ export function ConnectForm({ apiUrl }: { apiUrl: string }) {
   return (
     <form onSubmit={submit} className="mt-10 space-y-6">
       {error && (
-        <div className="rounded-sm border border-error-soft bg-error-soft/40 px-4 py-3">
-          <p className="body-sm text-error-deep">{error}</p>
+        <div className="rounded-md border border-coral-red/30 bg-coral-red/10 px-4 py-3">
+          <p className="body-sm text-coral-red">{error}</p>
         </div>
       )}
 
@@ -127,7 +127,7 @@ export function ConnectForm({ apiUrl }: { apiUrl: string }) {
         <select
           value={gscChoice}
           onChange={(e) => chooseGsc(e.target.value)}
-          className="body-sm h-10 w-full rounded-sm border border-hairline bg-canvas px-3 text-ink"
+          className="body-sm h-10 w-full rounded-md border border-graphite bg-carbon px-3 text-paper"
         >
           <option value="">Not connected</option>
           {usable.map((p) => (
@@ -142,7 +142,7 @@ export function ConnectForm({ apiUrl }: { apiUrl: string }) {
         <select
           value={ga4Choice}
           onChange={(e) => setGa4Choice(e.target.value)}
-          className="body-sm h-10 w-full rounded-sm border border-hairline bg-canvas px-3 text-ink"
+          className="body-sm h-10 w-full rounded-md border border-graphite bg-carbon px-3 text-paper"
         >
           <option value="">Not connected</option>
           {ga4.map((p) => (
@@ -160,7 +160,7 @@ export function ConnectForm({ apiUrl }: { apiUrl: string }) {
             value={clientName}
             onChange={(e) => setClientName(e.target.value)}
             placeholder="Acme Corporation"
-            className="body-sm h-10 w-full rounded-sm border border-hairline bg-canvas px-3 text-ink"
+            className="body-sm h-10 w-full rounded-md border border-graphite bg-carbon px-3 text-paper"
           />
         </Field>
         <Field label="Domain">
@@ -169,7 +169,7 @@ export function ConnectForm({ apiUrl }: { apiUrl: string }) {
             value={domain}
             onChange={(e) => setDomain(e.target.value)}
             placeholder="acme.com"
-            className="body-sm h-10 w-full rounded-sm border border-hairline bg-canvas px-3 text-ink"
+            className="body-sm h-10 w-full rounded-md border border-graphite bg-carbon px-3 text-paper"
           />
         </Field>
       </div>
@@ -177,14 +177,14 @@ export function ConnectForm({ apiUrl }: { apiUrl: string }) {
       <button
         type="submit"
         disabled={submitting || (!gscChoice && !ga4Choice)}
-        className="elevate-1 inline-flex h-10 items-center rounded-sm bg-primary px-4 text-on-primary transition-opacity hover:opacity-90 disabled:opacity-40"
+        className="inline-flex h-10 items-center rounded-md bg-acid-lime px-4 text-void transition-opacity hover:opacity-90 disabled:opacity-40"
       >
-        <span className="body-sm-strong">
+        <span className="body-sm">
           {submitting ? "Connecting…" : "Connect and backfill"}
         </span>
       </button>
 
-      <p className="caption text-mute">
+      <p className="caption text-ash">
         The backfill pulls up to 16 months — Search Console&apos;s full retention.
         It runs in the background and can take a few minutes on a large site.
       </p>
@@ -203,9 +203,9 @@ function Field({
 }) {
   return (
     <label className="block">
-      <span className="caption-mono mb-2 block uppercase text-mute">
+      <span className="mono-label mb-2 block uppercase text-ash">
         {label}
-        {hint && <span className="ml-2 normal-case text-mute">· {hint}</span>}
+        {hint && <span className="ml-2 normal-case text-ash">· {hint}</span>}
       </span>
       {children}
     </label>

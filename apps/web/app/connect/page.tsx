@@ -33,27 +33,27 @@ export default async function Connect({
 
   return (
     <div className="min-h-screen">
-      <header className="h-16 border-b border-hairline bg-canvas">
+      <header className="h-16 border-b border-graphite bg-void">
         <div className="mx-auto flex h-full max-w-3xl items-center justify-between px-6">
-          <Link href="/" className="body-sm-strong text-ink">
+          <Link href="/" className="body-sm text-paper">
             ← Dashboard
           </Link>
-          <span className="caption-mono text-mute">{principal.orgName}</span>
+          <span className="mono-label text-ash">{principal.orgName}</span>
         </div>
       </header>
 
       <main className="mx-auto max-w-3xl px-6 py-12">
-        <p className="caption-mono mb-3 uppercase text-mute">Connect</p>
-        <h1 className="display-lg text-ink">Add a client site.</h1>
-        <p className="body-md mt-3 text-body">
+        <p className="mono-label mb-3 uppercase text-ash">Connect</p>
+        <h1 className="subheading text-paper">Add a client site.</h1>
+        <p className="body-base mt-3 text-fog">
           Pull real rankings and traffic from Search Console and Analytics. Your
           Google account must already have access to the properties.
         </p>
 
         {!granted ? (
-          <section className="mt-10 rounded-md border border-hairline bg-canvas p-6">
-            <h2 className="display-sm text-ink">Grant data access</h2>
-            <p className="body-sm mt-2 text-body">
+          <section className="mt-10 rounded-lg border border-graphite bg-carbon p-6">
+            <h2 className="body-emphasis text-paper">Grant data access</h2>
+            <p className="body-sm mt-2 text-fog">
               Signing in only gave us your email. Reading a client&apos;s data
               needs two more scopes, requested separately so you can see exactly
               what they are.
@@ -61,21 +61,21 @@ export default async function Connect({
 
             <ul className="mt-5 space-y-3">
               <li className="flex gap-3">
-                <span className="caption-mono mt-0.5 text-mute">01</span>
+                <span className="mono-label mt-0.5 text-ash">01</span>
                 <div>
-                  <p className="body-sm-strong text-ink">
+                  <p className="body-sm text-paper">
                     Search Console — read only
                   </p>
-                  <p className="body-sm text-body">
+                  <p className="body-sm text-fog">
                     Queries, positions, clicks, impressions. 16 months of history.
                   </p>
                 </div>
               </li>
               <li className="flex gap-3">
-                <span className="caption-mono mt-0.5 text-mute">02</span>
+                <span className="mono-label mt-0.5 text-ash">02</span>
                 <div>
-                  <p className="body-sm-strong text-ink">Analytics — read only</p>
-                  <p className="body-sm text-body">
+                  <p className="body-sm text-paper">Analytics — read only</p>
+                  <p className="body-sm text-fog">
                     Sessions, conversions and revenue, joined to rankings by
                     landing page.
                   </p>
@@ -85,12 +85,12 @@ export default async function Connect({
 
             <a
               href={`${apiUrl}/v1/google/grant`}
-              className="elevate-1 mt-6 inline-flex h-10 items-center rounded-sm bg-primary px-4 text-on-primary transition-opacity hover:opacity-90"
+              className="card mt-6 inline-flex h-10 items-center rounded-md bg-acid-lime px-4 text-void transition-opacity hover:opacity-90"
             >
-              <span className="body-sm-strong">Grant access</span>
+              <span className="body-sm">Grant access</span>
             </a>
 
-            <p className="caption mt-4 text-mute">
+            <p className="caption mt-4 text-ash">
               Read-only. Nothing is written to your Google account, and no data
               leaves this machine.
             </p>
@@ -98,7 +98,7 @@ export default async function Connect({
         ) : (
           <>
             {partial && (
-              <div className="mt-8 rounded-sm border border-warning-soft bg-warning-soft/40 px-4 py-3">
+              <div className="mt-8 rounded-md border border-warning-soft bg-warning-soft/40 px-4 py-3">
                 <p className="body-sm text-warning-deep">
                   Only some scopes were granted
                   {!hasGsc && " — Search Console is missing"}
@@ -112,10 +112,10 @@ export default async function Connect({
             )}
 
             <div className="mt-8 flex items-center gap-2">
-              <span className="caption-mono rounded-full bg-canvas-soft-2 px-2 py-1 text-body">
+              <span className="mono-label rounded-full bg-slate px-2 py-1 text-fog">
                 {connection.account_email}
               </span>
-              <span className="caption-mono text-mute">
+              <span className="mono-label text-ash">
                 {hasGsc ? "Search Console ✓" : "Search Console ✗"} ·{" "}
                 {hasGa4 ? "Analytics ✓" : "Analytics ✗"}
               </span>

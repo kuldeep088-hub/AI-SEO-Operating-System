@@ -88,7 +88,7 @@ Place at repo root. This is the highest-leverage file in the project.
 ```markdown
 # AI SEO Operating System
 
-Local-first SEO platform for Growleads Agency. **$0/month recurring cost is a hard
+Local-first SEO platform for SEO agencies. **$0/month recurring cost is a hard
 constraint, not a preference.**
 
 ## Before you write code

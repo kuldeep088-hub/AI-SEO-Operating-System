@@ -36,8 +36,8 @@ In the Google Cloud project that issued the OAuth client:
 - [ ] Enable **Google Search Console API**
 - [ ] Enable **Google Analytics Data API**
 - [ ] OAuth consent screen → add **every** Google account you will sign in with
-      under **Test users** — not just `anuj@growleadsagency.com`. An account
-      that is not on the list gets `Error 403: access_denied` with
+      under **Test users**, not just the first one. An account that is not on
+      the list gets `Error 403: access_denied` with
       *"has not completed the Google verification process"*, which reads like a
       code fault and is not one.
 - [ ] Know what Testing mode costs you: **refresh tokens expire after 7 days.**

@@ -19,7 +19,7 @@ export default function Terms() {
       <Section heading="The agreement">
         <p>
           These terms cover your use of {COMPANY.appName}, operated by{" "}
-          {COMPANY.legalName}. Using the app means you accept them. If you are
+          {COMPANY.operator}. Using the app means you accept them. If you are
           agreeing on behalf of a company, you confirm you are allowed to.
         </p>
       </Section>
@@ -72,7 +72,7 @@ export default function Terms() {
           You keep all rights to the data you connect and anything the app
           derives from it. We claim no ownership. Our handling of it is described
           in the{" "}
-          <Link href="/privacy" className="text-link underline">
+          <Link href="/privacy" className="text-mist underline underline-offset-2 hover:text-paper">
             privacy policy
           </Link>
           , which forms part of these terms.
@@ -97,7 +97,7 @@ export default function Terms() {
 
       <Section heading="Liability">
         <p>
-          To the fullest extent the law allows, {COMPANY.legalName} is not liable
+          To the fullest extent the law allows, {COMPANY.operator} is not liable
           for indirect, incidental or consequential loss, or for lost profits,
           revenue or data. Where liability cannot be excluded, it is limited to
           the amount you paid for the service in the twelve months before the

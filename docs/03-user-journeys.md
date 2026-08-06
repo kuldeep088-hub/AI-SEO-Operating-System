@@ -11,7 +11,7 @@ background jobs triggered, and the failure modes that must be designed for.
 
 ---
 
-### Journey 1 — First run (Anuj, agency owner, day 0)
+### Journey 1 — First run (Sam, agency owner, day 0)
 
 **Goal: from empty folder to a real client's data on screen, in under 30 minutes.**
 
@@ -32,7 +32,7 @@ nobody to ask and never comes back. Treat first-run reliability as a feature.
 3. ./run.sh  →  opens http://localhost:3000
 
 4. Onboarding wizard, 4 steps:
-     Step 1  Create organization        "Growleads Agency"
+     Step 1  Create organization        "Acme Agency"
      Step 2  Connect Google account     OAuth → consent screen
      Step 3  Pick properties            lists every GSC + GA4 property you can access
      Step 4  Create first client        name it, assign properties, set brand voice (optional)
@@ -167,7 +167,7 @@ writing. §39 states the same thing in cost terms.
 
 ---
 
-### Journey 4 — Monthly reporting (Anuj, month end)
+### Journey 4 — Monthly reporting (Sam, month end)
 
 **Goal: 20 hours of reporting across 15 clients becomes 3.**
 
@@ -177,7 +177,7 @@ writing. §39 states the same thing in cost terms.
   health delta, content published, links gained/lost, next month's plan.
   Report Narrator writes the executive summary and the "what this means" prose.
 
-09:00 — Anuj opens Reports
+09:00 — Sam opens Reports
   15 reports listed, status "Draft — needs review"
 
   Per report (~8 min each):
@@ -207,7 +207,7 @@ what makes the 8-minute review possible instead of a 30-minute fact-check.
 **Goal: the client sees their own data, live, and nothing else.**
 
 ```
-Anuj → Client Settings → Sharing → "Create client link"
+Sam → Client Settings → Sharing → "Create client link"
    ├─ scoped to exactly one client's sites
    ├─ role: client_viewer (read-only, enforced by RLS — §28)
    ├─ optional passcode, optional expiry
@@ -256,7 +256,7 @@ complete in ~15 depending on site size.
 
 **The friction point to watch:** step 2 fails if the agency's Google account doesn't have
 access to the client's property. The wizard must detect this and produce the exact text to
-send the client ("ask them to add `anuj@growleadsagency.com` as a *Restricted* user in
+send the client ("ask them to add `you@your-agency.com` as a *Restricted* user in
 Search Console"), rather than an empty dropdown.
 
 ---

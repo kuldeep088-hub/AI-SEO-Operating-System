@@ -8,9 +8,9 @@
  * which is why the scopes are named on the page rather than buried in the
  * consent screen.
  *
- * DESIGN.md §"Vercel is a developer-platform brand": marketing CTAs take the
- * 100px pill; the 6px nav square is for in-app chrome. Both appear on this
- * page only in their correct roles.
+ * DESIGN.md layout language: 1200px contained, left-aligned oversized headline
+ * at 64px, 96px section gaps, hairline borders instead of shadows, and exactly
+ * one acid-lime button on the page.
  */
 import Link from "next/link";
 
@@ -35,89 +35,124 @@ const STEPS = [
   },
 ];
 
+const PRINCIPLES = [
+  {
+    label: "Not sold",
+    body: "No advertising networks, no trackers on this app, no data brokers. The only outbound calls carrying your data go back to Google's own APIs.",
+  },
+  {
+    label: "Encrypted",
+    body: "Google tokens are encrypted at rest with a key held outside the database, so a copy of the database alone grants nobody access to your Google account.",
+  },
+  {
+    label: "Separated",
+    body: "Each organisation's rows are isolated by PostgreSQL row-level security — enforced by the database, not by application code that could forget.",
+  },
+];
+
 export function MarketingHome() {
   return (
-    <div className="min-h-screen bg-canvas-soft">
+    <div className="min-h-screen bg-void">
       <PublicHeader />
 
       <main>
-        {/* ── Hero ────────────────────────────────────────────────── */}
-        <section className="mx-auto max-w-5xl px-6 py-24">
-          <p className="caption-mono uppercase text-mute">
-            Search Console + Analytics, in one place
+        {/* ── Hero ──────────────────────────────────────────────────
+            Left-aligned oversized headline with a link CTA to its right,
+            per DESIGN.md's layout section. */}
+        <section className="mx-auto max-w-[1200px] px-6 pb-24 pt-24">
+          <p className="mono-label uppercase text-fog">
+            Search Console + Analytics
           </p>
-          <h1 className="display-xl mt-4 max-w-2xl text-ink">
+          <h1 className="mt-6 max-w-3xl text-paper hero max-md:subheading">
             SEO reporting that shows the working.
           </h1>
-          <p className="body-md mt-6 max-w-xl text-body">
+          <p className="body-base mt-8 max-w-xl text-fog">
             Connect Google Search Console and Google Analytics. Get the
-            performance of every client site in one dashboard, refreshed nightly,
+            performance of every client site in one place, refreshed nightly,
             with every figure traceable to the data it came from.
           </p>
-          <div className="mt-10 flex flex-wrap items-center gap-4">
+
+          <div className="mt-12 flex flex-wrap items-center gap-4">
+            {/* The single acid-lime element on this page. DESIGN.md:
+                one primary action per view, never decoration. */}
             <Link
               href="/login"
-              className="elevate-1 flex h-12 items-center rounded-full bg-primary px-7 text-on-primary transition-opacity hover:opacity-90"
+              className="flex h-10 items-center rounded-md bg-acid-lime px-4 text-void transition-opacity hover:opacity-90"
+              style={{
+                fontSize: 14,
+                fontWeight: 510,
+                letterSpacing: "-0.011em",
+                boxShadow: "var(--shadow-cta)",
+              }}
             >
-              <span className="body-sm-strong">Continue with Google</span>
+              Continue with Google
             </Link>
             <Link
               href="/privacy"
-              className="flex h-12 items-center rounded-full border border-hairline-strong bg-canvas px-7 text-ink transition-colors hover:bg-canvas-soft-2"
+              className="caption flex h-10 items-center rounded-md border border-graphite px-3 text-mist transition-colors hover:border-smoke hover:text-paper"
             >
-              <span className="body-sm-strong">How your data is handled</span>
+              How your data is handled →
             </Link>
           </div>
         </section>
 
-        {/* ── How it works ────────────────────────────────────────── */}
-        <section className="border-t border-hairline bg-canvas">
-          <div className="mx-auto max-w-5xl px-6 py-16">
-            <h2 className="display-md text-ink">How it works</h2>
-            <div className="mt-10 grid gap-8 sm:grid-cols-3">
+        {/* ── How it works ─────────────────────────────────────────── */}
+        <section className="border-t border-graphite">
+          <div className="mx-auto max-w-[1200px] px-6 py-24">
+            <h2 className="subheading text-paper">How it works</h2>
+            <div className="mt-12 grid gap-8 md:grid-cols-3">
               {STEPS.map((s) => (
-                <div key={s.n}>
-                  <p className="caption-mono text-mute">{s.n}</p>
-                  <h3 className="body-sm-strong mt-3 text-ink">{s.title}</h3>
-                  <p className="body-sm mt-2 text-body">{s.body}</p>
+                <div key={s.n} className="card p-6">
+                  {/* Step numbers are fog, not lime. DESIGN.md: the accent is
+                      "never for decoration" — one action per view owns it. */}
+                  <p className="mono-label text-fog">{s.n}</p>
+                  <h3 className="body-lg mt-4 text-paper">{s.title}</h3>
+                  <p className="body-sm mt-3 text-fog">{s.body}</p>
                 </div>
               ))}
             </div>
           </div>
         </section>
 
-        {/* ── Scopes ──────────────────────────────────────────────────
+        {/* ── Scopes ───────────────────────────────────────────────────
             The section a Google reviewer is looking for: every requested
             permission, named, with the reason, before anyone signs in. */}
-        <section className="border-t border-hairline">
-          <div className="mx-auto max-w-5xl px-6 py-16">
-            <h2 className="display-md text-ink">
+        <section className="border-t border-graphite">
+          <div className="mx-auto max-w-[1200px] px-6 py-24">
+            <h2 className="subheading text-paper">
               What the app asks for, and why
             </h2>
-            <p className="body-md mt-3 max-w-xl text-body">
+            <p className="body-base mt-4 max-w-xl text-fog">
               Every Google permission is read-only. The app cannot publish,
               change or delete anything in your Search Console or Analytics
               properties.
             </p>
 
-            <div className="mt-10 divide-y divide-hairline border-y border-hairline">
+            <div className="mt-12 divide-y divide-graphite border-y border-graphite">
               {SCOPES.map((s) => (
                 <div
                   key={s.scope}
-                  className="grid gap-2 py-6 sm:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] sm:gap-8"
+                  className="grid gap-3 py-6 md:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] md:gap-12"
                 >
                   <div>
-                    <p className="body-sm-strong text-ink">{s.label}</p>
-                    <p className="caption-mono mt-1 break-words text-mute">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="body-sm text-paper">{s.label}</p>
+                      {s.sensitive && (
+                        <span className="label rounded-sm bg-white/5 px-1.5 py-0.5 text-fog">
+                          sensitive
+                        </span>
+                      )}
+                    </div>
+                    <p className="mono-label mt-2 break-words text-ash">
                       {s.scope}
                     </p>
                   </div>
-                  <p className="body-sm text-body">{s.why}</p>
+                  <p className="body-sm text-fog">{s.why}</p>
                 </div>
               ))}
             </div>
 
-            <p className="body-sm mt-6 text-mute">
+            <p className="body-sm mt-8 max-w-2xl text-ash">
               Sign-in asks only for your name and email. Search Console and
               Analytics access is requested separately, afterwards, on a screen
               that explains each one — so you can see the product before deciding
@@ -126,40 +161,25 @@ export function MarketingHome() {
           </div>
         </section>
 
-        {/* ── Data handling ───────────────────────────────────────── */}
-        <section className="border-t border-hairline bg-canvas">
-          <div className="mx-auto max-w-5xl px-6 py-16">
-            <h2 className="display-md text-ink">Your data</h2>
-            <div className="mt-8 grid gap-8 sm:grid-cols-3">
-              <div>
-                <p className="caption-mono uppercase text-mute">Not sold</p>
-                <p className="body-sm mt-2 text-body">
-                  No advertising networks, no trackers on this app, no data
-                  brokers. The only outbound calls carrying your data go back to
-                  Google&rsquo;s own APIs.
-                </p>
-              </div>
-              <div>
-                <p className="caption-mono uppercase text-mute">Encrypted</p>
-                <p className="body-sm mt-2 text-body">
-                  Google tokens are encrypted at rest with a key held outside the
-                  database, so a copy of the database alone grants nobody access
-                  to your Google account.
-                </p>
-              </div>
-              <div>
-                <p className="caption-mono uppercase text-mute">Separated</p>
-                <p className="body-sm mt-2 text-body">
-                  Each organisation&rsquo;s rows are isolated by PostgreSQL
-                  row-level security — enforced by the database, not by
-                  application code that could forget.
-                </p>
-              </div>
+        {/* ── Data handling ────────────────────────────────────────── */}
+        <section className="border-t border-graphite">
+          <div className="mx-auto max-w-[1200px] px-6 py-24">
+            <h2 className="subheading text-paper">Your data</h2>
+            <div className="mt-12 grid gap-8 md:grid-cols-3">
+              {PRINCIPLES.map((p) => (
+                <div key={p.label}>
+                  <p className="mono-label uppercase text-fog">{p.label}</p>
+                  <p className="body-sm mt-3 text-mist">{p.body}</p>
+                </div>
+              ))}
             </div>
-            <p className="body-sm mt-8 text-body">
+            <p className="body-sm mt-12 text-fog">
               Revoke access at any time from your Google account, or ask for
               deletion by email. The full detail is in the{" "}
-              <Link href="/privacy" className="text-link underline">
+              <Link
+                href="/privacy"
+                className="text-mist underline underline-offset-2 hover:text-paper"
+              >
                 privacy policy
               </Link>
               .

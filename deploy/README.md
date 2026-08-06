@@ -58,7 +58,7 @@ without it, and §33's CI is specified against GitHub Actions anyway:
 # check `git status` before the first push and confirm .env is not listed.
 cd "/Users/kuldeep/Growleads AI SEO "
 git init && git add -A && git commit -m "chore: initial commit"
-gh repo create growleads-seo-os --private --source=. --push
+gh repo create ai-seo-os --private --source=. --push
 ```
 
 Then, on a fresh server as root:

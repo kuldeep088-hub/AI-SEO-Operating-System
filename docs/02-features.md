@@ -352,7 +352,7 @@ the local model is weakest and where the free-data story is thinnest — do them
 the platform already earning its keep.
 
 **Definition of done:** connect a real client's GSC and GA4, run a crawl, generate a monthly
-report that Anuj would actually send.
+report that the owner would actually send.
 
 ---
 

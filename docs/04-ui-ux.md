@@ -638,7 +638,7 @@ explicit opt-in, with the cost consequence stated inline. See §17 and §24.
 
 ```
 ┌────────────────────────────────────────────────────────────────────────────┐
-│  [Growleads logo]                              Acme Corporation · acme.com │
+│  [Agency logo]                                Acme Corporation · acme.com │
 ├────────────────────────────────────────────────────────────────────────────┤
 │  Your SEO performance                            Last 28 days ▾            │
 │                                                                            │

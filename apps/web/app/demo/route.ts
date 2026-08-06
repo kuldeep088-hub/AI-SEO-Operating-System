@@ -20,7 +20,7 @@ import { SESSION_COOKIE } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
 
-const DEMO_SLUG = "growleads-demo";
+const DEMO_SLUG = "seoos-demo";
 
 export async function GET(request: Request) {
   const origin = new URL(request.url).origin;

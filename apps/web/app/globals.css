@@ -1,161 +1,236 @@
 @import "tailwindcss";
 
-/* Design tokens from DESIGN.md (Vercel-inspired).
-   Nav-scale radii (6px) throughout — this is an app shell, not a marketing
-   page, and DESIGN.md forbids mixing the 100px marketing pill with the 6px
-   nav scale on one screen. */
+/* Design tokens from DESIGN.md — "Linear — midnight precision instrument".
+   Dark by default: the canvas is #08090a and darkness is the substrate, not a
+   theme toggle. Elevation comes from hairline borders and surface-level
+   progression, never from layered drop shadows. */
 
 @theme {
-  /* ── Colour ─────────────────────────────────────────────────── */
-  --color-primary: #171717;
-  --color-on-primary: #ffffff;
-  --color-ink: #171717;
-  --color-body: #4d4d4d;
-  --color-mute: #888888;
-  --color-hairline: #ebebeb;
-  --color-hairline-strong: #a1a1a1;
-  --color-canvas: #ffffff;
-  --color-canvas-soft: #fafafa;
-  --color-canvas-soft-2: #f5f5f5;
+  /* ── Surfaces ────────────────────────────────────────────────
+     A four-step ladder. Anything that needs to sit "above" something
+     else moves one step up this list — it does not gain a shadow. */
+  --color-void: #08090a;        /* 0 — page canvas */
+  --color-carbon: #0f1011;      /* 1 — cards, nav bars */
+  --color-obsidian: #161718;    /* 2 — elevated panels */
+  --color-slate: #23252a;       /* 3 — interactive tint */
 
-  --color-link: #0070f3;
-  --color-link-deep: #0761d1;
-  --color-success: #0070f3;
-  --color-error: #ee0000;
-  --color-error-soft: #f7d4d6;
-  --color-error-deep: #c50000;
-  --color-warning: #f5a623;
-  --color-warning-soft: #ffefcf;
-  --color-warning-deep: #ab570a;
-  --color-cyan-deep: #29bc9b;
+  /* ── Borders ────────────────────────────────────────────────
+     These do the work shadows would do elsewhere. */
+  --color-graphite: #23252a;    /* structural edges, ghost outlines */
+  --color-smoke: #383b3f;       /* higher-contrast section separators */
 
-  /* ── Type ───────────────────────────────────────────────────── */
-  --font-sans: var(--font-geist-sans), Inter, system-ui, -apple-system, sans-serif;
-  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+  /* ── Text ───────────────────────────────────────────────────
+     All body copy lives in this grey ramp. DESIGN.md is explicit that
+     chromatic text colours are never used for body copy. */
+  --color-ash: #62666d;         /* muted, inactive */
+  --color-fog: #8a8f98;         /* tertiary, placeholder */
+  --color-mist: #d0d6e0;        /* body, secondary headings */
+  --color-bone: #e5e5e6;        /* high-contrast button text */
+  --color-paper: #ffffff;       /* primary headings, max emphasis */
 
-  /* ── Radius (nav scale) ─────────────────────────────────────── */
-  --radius-xs: 4px;
-  --radius-sm: 6px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
+  /* ── Accents ────────────────────────────────────────────────
+     Acid lime is the single chromatic UI element in the system: one
+     primary action per view, never decoration, never a secondary button.
+     The rest are supporting punctuation on tags and badges — DESIGN.md
+     specifically says pulse-green and coral-red are NOT status colours. */
+  --color-acid-lime: #e4f222;
+  --color-pulse-green: #27a644;
+  --color-coral-red: #eb5757;
+  --color-signal-teal: #02b8cc;
+  --color-iris-violet: #6366f1;
+  --color-lavender: #8b5cf6;
+
+  /* ── Type ───────────────────────────────────────────────────
+     next/font/google downloads and self-hosts these at build time, so
+     there is no runtime request to Google. That matters beyond
+     performance: /privacy states this app makes no third-party calls
+     with your data, and a webfont fetched from Google's CDN on every
+     page load would quietly make that false. */
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: var(--font-mono-jetbrains), ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* ── Radius ─────────────────────────────────────────────────
+     Three radii are the entire vocabulary: 6px buttons/inputs, 12px
+     cards, 9999px pills. 2px and 4px exist for small chrome and badges.
+     DESIGN.md forbids 16px+ on cards. */
+  --radius-xs: 2px;
+  --radius-sm: 4px;    /* badges */
+  --radius-md: 6px;    /* buttons, inputs */
+  --radius-lg: 12px;   /* cards — the maximum */
+
+  /* ── Shadows ────────────────────────────────────────────────
+     Deliberately sparse. `hairline` is the workhorse and is an inset
+     ring, not a drop shadow. */
+  --shadow-hairline: rgb(35 37 42) 0 0 0 1px inset;
+  --shadow-sm: rgb(0 0 0 / 0.4) 0 2px 4px 0;
+  --shadow-xl: rgb(8 9 10 / 0.6) 0 4px 32px 0;
+  /* The one place a real shadow lands on chrome: the acid-lime CTA. */
+  --shadow-cta:
+    rgb(0 0 0 / 0.01) 0 5px 2px 0,
+    rgb(0 0 0 / 0.04) 0 3px 2px 0,
+    rgb(0 0 0 / 0.07) 0 1px 1px 0,
+    rgb(0 0 0 / 0.08) 0 0 1px 0;
 
   /* ── Spacing ─────────────────────────────────────────────────
-     Deliberately NOT defined as custom variables.
+     Deliberately NOT defined, and this is load-bearing — DESIGN.md's
+     "Quick Start" block lists --spacing-4 … --spacing-128 and copying
+     them here would break the entire app silently.
 
-     Tailwind v4 resolves `max-w-3xl` / `w-lg` and friends from the
-     --container-* namespace, but a --spacing-3xl definition silently wins
-     over it: `max-w-3xl` compiles to `max-width: var(--spacing-3xl)` and,
-     if that variable isn't emitted, the element collapses to min-content.
-     Every word wraps onto its own line and nothing in the markup explains why.
+     Tailwind v4 computes `p-4` as calc(var(--spacing) * 4) from a single
+     base (0.25rem = 4px). Defining an explicit `--spacing-4: 4px` makes
+     `p-4` resolve to 4px instead of 16px — every padding, margin and gap
+     in the app collapses to a quarter of its intended size, with nothing
+     in the markup to explain why.
 
-     DESIGN.md's scale is already 4px-based, so Tailwind's numeric scale
-     expresses it exactly with no custom tokens:
+     DESIGN.md's base unit is already 4px, so Tailwind's numeric scale
+     expresses the ladder exactly and no custom tokens are needed:
 
-       xxs  4px = 1     lg  24px = 6      3xl  48px = 12
-       xs   8px = 2     xl  32px = 8      4xl  64px = 16
-       sm  12px = 3     2xl 40px = 10     5xl  96px = 24
-       md  16px = 4                       6xl 128px = 32
+       4px = 1     16px = 4     32px = 8     96px  = 24
+       8px = 2     20px = 5     48px = 12    128px = 32
+       12px = 3    24px = 6     64px = 16
+
+     The same trap applies to --container-*: a --spacing-3xl definition
+     silently wins over `max-w-3xl`, collapsing elements to min-content.
   */
 }
 
-/* Stacked small offsets + inset hairline ring — DESIGN.md is explicit that a
-   single heavy drop-shadow is wrong for this brand. */
-@utility elevate-1 {
-  box-shadow:
-    0 0 0 1px rgb(0 0 0 / 0.04) inset,
-    0 1px 1px rgb(0 0 0 / 0.02),
-    0 2px 4px rgb(0 0 0 / 0.03);
+/* ── Type scale ───────────────────────────────────────────────
+   From DESIGN.md "Type Scale Detail". Weights cap at 590 — the system
+   deliberately has no bold. Tracking tightens as size grows, and
+   -0.022em at 48px+ is called non-negotiable. */
+
+@utility display {
+  font-size: 72px;
+  font-weight: 510;
+  line-height: 1;
+  letter-spacing: -0.022em;
 }
 
-@utility elevate-2 {
-  box-shadow:
-    0 0 0 1px rgb(0 0 0 / 0.06) inset,
-    0 1px 2px rgb(0 0 0 / 0.04),
-    0 4px 8px rgb(0 0 0 / 0.04),
-    0 8px 16px rgb(0 0 0 / 0.03);
+@utility hero {
+  font-size: 64px;
+  font-weight: 510;
+  line-height: 1;
+  letter-spacing: -0.022em;
 }
 
-/* Display scale: weight 600 ceiling, sentence case, negative tracking.
-   DESIGN.md: never promote to 700, never all-caps. */
-@utility display-xl {
+@utility section-heading {
   font-size: 48px;
-  font-weight: 600;
-  line-height: 48px;
-  letter-spacing: -2.4px;
+  font-weight: 510;
+  line-height: 1;
+  letter-spacing: -0.022em;
 }
 
-@utility display-lg {
+@utility subheading {
   font-size: 32px;
-  font-weight: 600;
-  line-height: 40px;
-  letter-spacing: -1.28px;
+  font-weight: 400;
+  line-height: 1.13;
+  letter-spacing: -0.022em;
 }
 
-@utility display-md {
+@utility heading {
   font-size: 24px;
-  font-weight: 600;
-  line-height: 32px;
-  letter-spacing: -0.96px;
+  font-weight: 400;
+  line-height: 1.33;
+  letter-spacing: -0.012em;
 }
 
-@utility display-sm {
+@utility body-emphasis {
   font-size: 20px;
-  font-weight: 600;
-  line-height: 28px;
-  letter-spacing: -0.6px;
+  font-weight: 590;
+  line-height: 1.33;
+  letter-spacing: -0.012em;
 }
 
-@utility body-md {
+@utility body-lg {
+  font-size: 17px;
+  font-weight: 590;
+  line-height: 1.6;
+}
+
+@utility body-base {
   font-size: 16px;
   font-weight: 400;
-  line-height: 24px;
+  line-height: 1.5;
 }
 
 @utility body-sm {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 400;
-  line-height: 20px;
-  letter-spacing: -0.28px;
-}
-
-@utility body-sm-strong {
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 20px;
-  letter-spacing: -0.28px;
+  line-height: 1.6;
+  letter-spacing: -0.011em;
 }
 
 @utility caption {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 400;
-  line-height: 16px;
+  line-height: 1.2;
 }
 
-/* Mono is the voice of the platform — eyebrows, technical labels, code.
-   Never body paragraphs. */
-@utility caption-mono {
+@utility label {
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.4;
+}
+
+@utility micro {
+  font-size: 10px;
+  font-weight: 510;
+  line-height: 1.5;
+}
+
+/* Berkeley Mono's role, per DESIGN.md: issue IDs, keyboard shortcuts,
+   technical metadata. Never headings, never marketing copy. */
+@utility mono-label {
   font-family: var(--font-mono);
   font-size: 12px;
   font-weight: 400;
-  line-height: 16px;
-  letter-spacing: 0.02em;
+  line-height: 1.4;
+  letter-spacing: -0.013em;
+}
+
+@utility mono-caption {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: -0.013em;
+}
+
+/* ── Surface helpers ─────────────────────────────────────────── */
+
+/* The standard card: one surface step up, hairline inset ring, no glow. */
+@utility card {
+  background: var(--color-carbon);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-hairline);
+}
+
+/* Almost invisible — barely separates from the canvas. */
+@utility card-subtle {
+  background: rgb(255 255 255 / 0.02);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
 }
 
 html {
-  background: var(--color-canvas-soft);
+  background: var(--color-void);
+  color-scheme: dark;
 }
 
 body {
-  background: var(--color-canvas-soft);
-  color: var(--color-ink);
+  background: var(--color-void);
+  color: var(--color-mist);
   font-family: var(--font-sans);
+  /* These alternate glyphs are described in DESIGN.md as defining the
+     typographic identity: cv01 (single-storey a), ss03, slashed zero. */
+  font-feature-settings: "cv01" on, "ss03" on, "zero" on;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
 
 ::selection {
-  background: #171717;
-  color: #f2f2f2;
+  background: var(--color-acid-lime);
+  color: var(--color-void);
 }
 
 /* Numbers that get compared column-to-column must not shift width. */

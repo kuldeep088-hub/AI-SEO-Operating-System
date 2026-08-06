@@ -416,7 +416,7 @@ Computed in SQL over `mv_query_opportunities`, never by the model (§18 rule 5).
 
 ## §44. SEO Strategy for the platform
 
-The platform is internal, so "SEO for the platform" means **SEO for Growleads Agency**, using
+The platform is internal, so "SEO for the platform" means **SEO for the agency running it**, using
 this tool as the engine. Three plays, all $0.
 
 ### Play 1 — The free tools site
@@ -474,7 +474,7 @@ your own benchmarks.
 
 ### Measurement
 
-Growleads' own site is client #1 in the tool. The tools site is a second property. Both are
+The agency's own site is client #1 in the tool. The tools site is a second property. Both are
 tracked in exactly the same dashboard as paying clients — which is the fastest possible
 feedback loop on whether the product works, because the person who feels the pain is the
 person who can fix the code.

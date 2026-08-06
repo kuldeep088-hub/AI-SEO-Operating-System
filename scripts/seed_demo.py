@@ -19,7 +19,7 @@ from datetime import UTC, datetime, timedelta
 
 import asyncpg
 
-DEMO_SLUG = "growleads-demo"
+DEMO_SLUG = "seoos-demo"
 
 
 async def clear(conn: asyncpg.Connection) -> None:
@@ -27,7 +27,7 @@ async def clear(conn: asyncpg.Connection) -> None:
         "DELETE FROM organizations WHERE slug = $1 RETURNING 1", DEMO_SLUG
     )
     await conn.execute(
-        "DELETE FROM users WHERE email = 'demo@growleadsagency.com'"
+        "DELETE FROM users WHERE email = 'demo@example.com'"
     )
     print("demo data removed" if n else "no demo data found")
 
@@ -37,11 +37,11 @@ async def seed(conn: asyncpg.Connection) -> str:
 
     org = await conn.fetchval(
         "INSERT INTO organizations (name, slug) VALUES ($1, $2) RETURNING id",
-        "Growleads Agency (demo)", DEMO_SLUG,
+        "Demo Agency", DEMO_SLUG,
     )
     user = await conn.fetchval(
         "INSERT INTO users (email, name) VALUES ($1, $2) RETURNING id",
-        "demo@growleadsagency.com", "Demo User",
+        "demo@example.com", "Demo User",
     )
     await conn.execute(
         "INSERT INTO memberships (org_id, user_id, role) VALUES ($1, $2, 'owner')",

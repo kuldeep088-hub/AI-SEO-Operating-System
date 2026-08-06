@@ -509,7 +509,7 @@ def build_html(assets: dict[str, str]) -> str:
     parts.append(
         f"""<div class="cover">
   <div class="mesh"></div>
-  <div class="eyebrow">Growleads Agency · Product & Engineering Specification</div>
+  <div class="eyebrow">Product & Engineering Specification</div>
   <h1>AI SEO<br>Operating System</h1>
   <p class="deck">A complete SEO platform that runs entirely on your own machine — Google's
   free data, a local AI model, agency-grade deliverables. $0/month at any number of clients.</p>
@@ -519,7 +519,7 @@ def build_html(assets: dict[str, str]) -> str:
     <div><b>49</b>tables, 29 RLS-protected</div>
     <div><b>5</b>tools replaced</div>
   </div>
-  <div class="imprint"><span>Compiled {today}</span><span>Internal — Growleads Agency</span></div>
+  <div class="imprint"><span>Compiled {today}</span><span>Internal</span></div>
 </div>"""
     )
 
@@ -656,7 +656,7 @@ async def print_pdf(html_path: Path, pdf_path: Path) -> None:
             foot = (
                 '<div style="width:100%;font:7pt -apple-system,Helvetica,sans-serif;color:#a3a3a3;'
                 'padding:0 16mm;display:flex;justify-content:space-between;">'
-                "<span>AI SEO Operating System — Complete Specification · Growleads Agency</span>"
+                "<span>AI SEO Operating System — Complete Specification</span>"
                 '<span class="pageNumber"></span></div>'
             )
             print("  printing …")

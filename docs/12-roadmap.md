@@ -9,7 +9,7 @@ Sections §45–§49. [← Back to index](../README.md)
 ### Sequencing rule
 
 **Ship in the order that produces a client-visible deliverable soonest.** Every phase ends with
-something Anuj could hand to a real client. A half-built platform that generates one real
+something the owner could hand to a real client. A half-built platform that generates one real
 monthly report beats a fully-built platform that generates none.
 
 ### Six phases, ~24 weeks part-time
@@ -67,7 +67,7 @@ means auditing every query written in the interim. Two days now, two weeks later
 | 8 | Monthly report: data assembly, narrative, PDF, white-labelling |
 
 **Exit criteria:** connect a real client's GSC and GA4, wait for a nightly sync, generate a
-monthly report Anuj would actually send. **This is the moment the project becomes worth
+monthly report the owner would actually send. **This is the moment the project becomes worth
 continuing** — and the moment to honestly assess whether the local model's narrative quality
 is good enough. If it isn't, that finding arrives in week 8, not week 20.
 

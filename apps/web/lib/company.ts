@@ -6,7 +6,7 @@
  *
  *  Google checks that the homepage and privacy policy are on the same domain
  *  you verified in Search Console, and that the privacy policy names a real
- *  contact. Placeholder text left here is a rejection.
+ *  contact. Any TODO left here is a rejection.
  * ─────────────────────────────────────────────────────────────────────────────
  */
 
@@ -14,20 +14,29 @@ export const COMPANY = {
   /** The product name. Must match the "App name" on the OAuth consent screen. */
   appName: "AI SEO Operating System",
 
-  /** The operator. Must match the legal entity you verify the domain as. */
-  legalName: "Growleads Agency",
+  /** Short form, used in the nav logo mark where space is tight. */
+  appShortName: "AI SEO OS",
 
   /** Where the app is served. Must be the domain verified in Search Console. */
-  domain: "seo.growleadsagency.com",
+  domain: "TODO — your domain, e.g. seo.example.com",
 
   /** Reachable address for privacy questions and data-deletion requests. */
-  contactEmail: "anuj@growleadsagency.com",
+  contactEmail: "TODO — your contact email",
+
+  /**
+   * Who operates the service, for the legal pages.
+   *
+   * Deliberately a placeholder rather than a name: the privacy policy and terms
+   * are a contract between a real legal entity and its users, and inventing an
+   * operator would put a fictional party on both. Whoever runs this fills it in.
+   */
+  operator: "TODO — the legal entity operating this service",
 
   /** Postal address — Google's reviewers expect one on the privacy policy. */
   postalAddress: "TODO — registered business address",
 
   /** Governing law for the terms of service. */
-  jurisdiction: "India",
+  jurisdiction: "TODO — governing jurisdiction",
 
   /** Last substantive revision, shown on both legal pages. */
   lastUpdated: "6 August 2026",

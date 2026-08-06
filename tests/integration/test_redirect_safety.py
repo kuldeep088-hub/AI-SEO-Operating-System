@@ -15,11 +15,11 @@ import pytest
 
 from packages.core.urls import safe_redirect_path
 
-WEB_URL = "https://seo.growleadsagency.com"
+WEB_URL = "https://seo.example.com"
 
 # Each of these, concatenated onto WEB_URL, resolves to a host we do not own.
 ESCAPES = [
-    ".evil.com",           # https://seo.growleadsagency.com.evil.com
+    ".evil.com",           # https://seo.example.com.evil.com
     "@evil.com",           # userinfo trick — real host is evil.com
     "//evil.com",          # protocol-relative
     "/\\evil.com",         # browsers fold \ to / in the authority position

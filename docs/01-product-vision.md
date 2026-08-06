@@ -203,7 +203,7 @@ Full treatment in §38 and §56.
 
 ## §3. Target Users
 
-The product is built first for **Growleads Agency** and generalises outward. Ranked by fit:
+The product is built first for a single SEO agency and generalises outward. Ranked by fit:
 
 ### Primary — SEO and digital marketing agencies (2–20 people)
 
@@ -258,11 +258,11 @@ local-only deployment does not. §51 covers what would change.
 
 ## §4. User Personas
 
-### Persona 1 — Anuj, Agency Owner
+### Persona 1 — Sam, Agency Owner
 
 | | |
 |---|---|
-| **Role** | Founder, Growleads Agency |
+| **Role** | Founder, a small SEO agency |
 | **Team** | 3–6 people |
 | **Clients** | 12–20 sites, mixed sectors, mostly Indian SMB and SaaS |
 | **Technical level** | High. Runs local LLMs, writes Python, comfortable with Docker |

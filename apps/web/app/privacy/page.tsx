@@ -27,7 +27,7 @@ export default function Privacy() {
       <Section heading="Who this is">
         <p>
           {COMPANY.appName} (&ldquo;the app&rdquo;) is operated by{" "}
-          {COMPANY.legalName}, {COMPANY.postalAddress}. Questions about this
+          {COMPANY.operator}, {COMPANY.postalAddress}. Questions about this
           policy or about your data go to{" "}
           <a href={`mailto:${COMPANY.contactEmail}`}>{COMPANY.contactEmail}</a>,
           and we answer them.
@@ -43,8 +43,8 @@ export default function Privacy() {
         <ul className="space-y-4">
           {SCOPES.map((s) => (
             <li key={s.scope}>
-              <span className="body-sm-strong text-ink">{s.label}</span>
-              <span className="caption-mono ml-2 text-mute">{s.scope}</span>
+              <span className="body-sm text-paper">{s.label}</span>
+              <span className="mono-label ml-2 text-ash">{s.scope}</span>
               <p className="mt-1">{s.why}</p>
             </li>
           ))}
@@ -107,7 +107,7 @@ export default function Privacy() {
       <Section heading="Where it is stored, and who can reach it">
         <p>
           Data is stored in a PostgreSQL database on a server controlled by{" "}
-          {COMPANY.legalName}. Your Google access and refresh tokens are
+          {COMPANY.operator}. Your Google access and refresh tokens are
           encrypted at rest with a key held outside the database, so a copy of
           the database alone does not grant access to your Google account.
         </p>

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
+import { PublicFooter, PublicHeader } from "@/components/public-chrome";
 import { getPrincipal } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
@@ -39,86 +40,94 @@ export default async function Login({
   const apiUp = await isApiUp(apiUrl);
 
   return (
-    <main className="flex min-h-screen items-center justify-center px-6 py-16">
-      <div className="w-full max-w-[400px]">
-        <div className="mb-8 flex items-center gap-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-sm bg-primary">
-            <span className="caption-mono text-on-primary">S</span>
+    <div className="flex min-h-screen flex-col bg-void">
+      <PublicHeader />
+
+      <main className="flex flex-1 items-center justify-center px-6 py-20">
+        <div className="w-full max-w-[420px]">
+          <h1 className="subheading text-paper">Sign in.</h1>
+          <p className="body-sm mt-4 text-fog">
+            Search Console and Analytics for every client site, in one place,
+            refreshed nightly.
+          </p>
+
+          {error === "demo_expired" && (
+            <div className="mt-8 rounded-md border border-graphite bg-white/[0.02] px-4 py-3">
+              <p className="body-sm text-coral-red">
+                That demo link has expired. Generate a new one with{" "}
+                <code className="mono-label">scripts/seed_demo.py</code>.
+              </p>
+            </div>
+          )}
+
+          {!apiUp && (
+            <div className="mt-8 rounded-md border border-graphite bg-white/[0.02] px-4 py-3">
+              <p className="body-sm text-coral-red">
+                The API isn&apos;t running, so sign-in can&apos;t start. Stop this
+                server and run <code className="mono-label">./run.sh</code> from
+                the project root — it starts Postgres, the API, the worker and
+                this page together.
+              </p>
+            </div>
+          )}
+
+          {/* The single acid-lime action on this view. */}
+          {apiUp ? (
+            <a
+              href={`${apiUrl}/v1/auth/google/start`}
+              className="mt-10 flex h-11 w-full items-center justify-center rounded-md bg-acid-lime text-void transition-opacity hover:opacity-90"
+              style={{
+                fontSize: 14,
+                fontWeight: 510,
+                letterSpacing: "-0.011em",
+                boxShadow: "var(--shadow-cta)",
+              }}
+            >
+              Continue with Google
+            </a>
+          ) : (
+            <button
+              disabled
+              className="mt-10 flex h-11 w-full cursor-not-allowed items-center justify-center rounded-md border border-graphite bg-transparent text-ash"
+              style={{ fontSize: 14, fontWeight: 510 }}
+            >
+              Continue with Google
+            </button>
+          )}
+
+          <div className="mt-12 space-y-6 border-t border-graphite pt-8">
+            <div>
+              <p className="mono-label uppercase text-fog">Scopes</p>
+              <p className="body-sm mt-2 text-ash">
+                Only email and profile, to sign you in. Search Console and
+                Analytics access is requested separately, later, on a screen that
+                explains each one.
+              </p>
+            </div>
+            <div>
+              <p className="mono-label uppercase text-fog">Data</p>
+              {/* This used to read "never leaves this machine", which was true
+                  of a laptop install and false the moment the app is hosted for
+                  other people. Claims on a sign-in screen are read by Google's
+                  reviewers too, so it now says something true of both. */}
+              <p className="body-sm mt-2 text-ash">
+                Read-only access, never sold or shared. The only outbound calls
+                carrying your data are to Google&apos;s own APIs, using access
+                you grant — see the{" "}
+                <Link
+                  href="/privacy"
+                  className="text-mist underline underline-offset-2 hover:text-paper"
+                >
+                  privacy policy
+                </Link>
+                .
+              </p>
+            </div>
           </div>
-          <span className="body-sm-strong text-ink">AI SEO OS</span>
         </div>
+      </main>
 
-        <h1 className="display-lg text-ink">Sign in.</h1>
-        <p className="body-md mt-3 text-body">
-          Local-first SEO for agencies. Runs on this machine, costs nothing to
-          operate.
-        </p>
-
-        {error === "demo_expired" && (
-          <div className="mt-6 rounded-sm border border-error-soft bg-error-soft/40 px-4 py-3">
-            <p className="body-sm text-error-deep">
-              That demo link has expired. Generate a new one with{" "}
-              <code className="caption-mono">scripts/seed_demo.py</code>.
-            </p>
-          </div>
-        )}
-
-        {!apiUp && (
-          <div className="mt-6 rounded-sm border border-error-soft bg-error-soft/40 px-4 py-3">
-            <p className="body-sm text-error-deep">
-              The API isn&apos;t running, so sign-in can&apos;t start. Stop this
-              server and run <code className="caption-mono">./run.sh</code> from
-              the project root — it starts Postgres, the API, the worker and this
-              page together.
-            </p>
-          </div>
-        )}
-
-        {/* Primary CTA — ink IS the conversion target (DESIGN.md).
-            Nav-scale 6px radius, consistent with the rest of the app shell. */}
-        {apiUp ? (
-          <a
-            href={`${apiUrl}/v1/auth/google/start`}
-            className="elevate-1 mt-8 flex h-12 w-full items-center justify-center gap-2 rounded-sm bg-primary text-on-primary transition-opacity hover:opacity-90"
-          >
-            <span className="body-sm-strong">Continue with Google</span>
-          </a>
-        ) : (
-          <button
-            disabled
-            className="mt-8 flex h-12 w-full cursor-not-allowed items-center justify-center gap-2 rounded-sm border border-hairline bg-transparent text-mute"
-          >
-            <span className="body-sm-strong">Continue with Google</span>
-          </button>
-        )}
-
-        <div className="mt-10 space-y-4 border-t border-hairline pt-6">
-          <div>
-            <p className="caption-mono uppercase text-mute">Scopes</p>
-            <p className="body-sm mt-2 text-body">
-              Only email and profile, to sign you in. Search Console and
-              Analytics access is requested separately, later, on a screen that
-              explains each one.
-            </p>
-          </div>
-          <div>
-            <p className="caption-mono uppercase text-mute">Data</p>
-            {/* This used to read "never leaves this machine", which was true of
-                a laptop install and false the moment the app is hosted for
-                other people. Claims on a sign-in screen are read by Google's
-                reviewers too, so it now says something true of both. */}
-            <p className="body-sm mt-2 text-body">
-              Read-only access, never sold or shared. The only outbound calls
-              carrying your data are to Google&apos;s own APIs, using access you
-              grant — see the{" "}
-              <Link href="/privacy" className="text-link underline">
-                privacy policy
-              </Link>
-              .
-            </p>
-          </div>
-        </div>
-      </div>
-    </main>
+      <PublicFooter />
+    </div>
   );
 }

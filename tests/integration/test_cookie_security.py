@@ -36,5 +36,5 @@ def test_prod_mode_on_http_still_does_not_set_secure() -> None:
 def test_https_sets_secure_regardless_of_env() -> None:
     """Put TLS in front and the flag turns itself on, with no ENV change."""
     for env in ("dev", "prod-local"):
-        s = _settings(API_URL="https://seo.growleadsagency.com", ENV=env)
+        s = _settings(API_URL="https://seo.example.com", ENV=env)
         assert s.cookie_secure is True
