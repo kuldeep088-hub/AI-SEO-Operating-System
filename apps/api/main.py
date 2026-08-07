@@ -13,7 +13,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from apps.api.deps import SESSION_COOKIE
-from apps.api.routers import auth, google, orgs
+from apps.api.routers import auth, google, jobs, orgs
+from packages.ai import health as ai_health
 from packages.core.config import settings
 from packages.core.crypto import hash_token
 from packages.core.errors import AuthError, PermanentError, QuotaError, TransientError
@@ -58,6 +59,11 @@ app.add_middleware(
 # page uses on the loopback, and the schema the docs page fetches.
 _UNLIMITED = frozenset({"/health", "/v1/openapi.json", "/v1/docs"})
 
+# Server-sent event streams are long-lived by design. They are opened once
+# per page rather than per interaction, and counting a 15-minute stream
+# against a per-minute budget would throttle a user who did nothing wrong.
+_UNLIMITED_PREFIXES = ("/v1/jobs/stream/",)
+
 # Safe methods get the read budget, everything else the mutation budget.
 _SAFE_METHODS = frozenset({"GET", "HEAD", "OPTIONS"})
 
@@ -71,7 +77,9 @@ async def rate_limit(request: Request, call_next: Any) -> Any:
     ever listened on localhost, not fine once it is on the internet. Falling
     back to the source address closes that gap.
     """
-    if request.url.path in _UNLIMITED:
+    if request.url.path in _UNLIMITED or request.url.path.startswith(
+        _UNLIMITED_PREFIXES
+    ):
         return await call_next(request)
 
     token = request.cookies.get(SESSION_COOKIE)
@@ -165,6 +173,11 @@ async def health() -> JSONResponse:
     checks = {
         "postgres": db,
         "google_oauth": {"configured": settings.google_configured},
+        # Reported but NOT part of `ok`: the pipeline, dashboards and analytics
+        # all work with Ollama down. Only report generation stops, and failing
+        # the whole health check for that would take the app out of service
+        # over a degraded feature.
+        "ollama": await ai_health(),
     }
     ok = bool(db.get("ok"))
     return JSONResponse(
@@ -176,3 +189,4 @@ async def health() -> JSONResponse:
 app.include_router(auth.router)
 app.include_router(orgs.router)
 app.include_router(google.router)
+app.include_router(jobs.router)

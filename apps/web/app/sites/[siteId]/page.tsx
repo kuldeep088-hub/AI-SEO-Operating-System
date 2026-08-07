@@ -10,6 +10,7 @@ import {
   PositionDelta,
   Stat,
 } from "@/components/analytics-parts";
+import { JobProgress } from "@/components/job-progress";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { TrendChart, type TrendPoint } from "@/components/trend-chart";
 import { tenantQuery } from "@/lib/db";
@@ -53,6 +54,7 @@ export default async function SiteAnalytics({
   if (!principal) redirect("/login");
 
   const { siteId } = await params;
+  const apiUrl = process.env.API_URL ?? "http://localhost:8000";
   const q = <T,>(sql: string, args: unknown[] = []) =>
     tenantQuery<T>(principal.orgId, principal.role, sql, args);
 
@@ -85,6 +87,7 @@ export default async function SiteAnalytics({
     ga4Totals,
     landingPages,
     channels,
+    joined,
   ] = await Promise.all([
     q<Row>(
       `SELECT
@@ -171,6 +174,22 @@ export default async function SiteAnalytics({
       `SELECT coalesce(channel, 'unknown') AS channel, sum(sessions) AS sessions
        FROM   ga4_daily WHERE site_id = $1 AND date >= current_date - $2::int
        GROUP  BY channel ORDER BY sessions DESC LIMIT 8`,
+      [siteId, WINDOW],
+    ),
+    // The GSC-GA4 join (migration 0004). Search Console spells a page
+    // "https://acme.com/services" and Analytics spells it "/services", so
+    // until the view normalised both these two datasets could not be put
+    // side by side at all.
+    q<Row>(
+      `SELECT path,
+              sum(clicks) AS clicks, sum(impressions) AS impressions,
+              sum(sessions) AS sessions, sum(conversions) AS conversions,
+              bool_or(in_search_console) AS in_gsc,
+              bool_or(in_analytics)      AS in_ga4
+       FROM   page_performance
+       WHERE  site_id = $1 AND date >= current_date - $2::int
+       GROUP  BY path
+       ORDER  BY sum(impressions) DESC NULLS LAST LIMIT 15`,
       [siteId, WINDOW],
     ),
   ]);
@@ -266,6 +285,11 @@ export default async function SiteAnalytics({
             </p>
           </div>
         </section>
+
+        {/* ── Live job progress ───────────────────────────────────── */}
+        <Panel title="Sync status" hint="Live">
+          <JobProgress siteId={siteId} apiUrl={apiUrl} />
+        </Panel>
 
         {/* ── Trend ──────────────────────────────────────────────────
             Two charts, one measure each. Never two y-axes. */}
@@ -367,6 +391,43 @@ export default async function SiteAnalytics({
             )}
           </Panel>
         </div>
+
+        {/* ── Search to behaviour ──────────────────────────────────── */}
+        <Panel
+          title="Search to behaviour"
+          hint="Search Console and Analytics, joined by page"
+        >
+          <DataTable
+            rows={joined}
+            empty="Nothing to join yet — this fills in once both Search Console and Analytics have data for the same pages."
+            columns={[
+              {
+                key: "path",
+                header: "Page",
+                truncate: true,
+                render: (r) => <span className="text-title">{String(r.path)}</span>,
+              },
+              { key: "i", header: "Impr.", align: "right", render: (r) => n(r.impressions).toLocaleString() },
+              { key: "c", header: "Clicks", align: "right", render: (r) => n(r.clicks).toLocaleString() },
+              { key: "s", header: "Sessions", align: "right", render: (r) => n(r.sessions).toLocaleString() },
+              { key: "cv", header: "Conv.", align: "right", render: (r) => n(r.conversions).toLocaleString() },
+              {
+                key: "src",
+                header: "Source",
+                align: "right",
+                // A page in one source and not the other is the finding, not a
+                // gap: impressions with no sessions means nobody clicked;
+                // sessions with no impressions means they arrived elsewhere.
+                render: (r) =>
+                  r.in_gsc && r.in_ga4 ? (
+                    <span className="text-subtle">both</span>
+                  ) : (
+                    <span className="text-muted">{r.in_gsc ? "search only" : "analytics only"}</span>
+                  ),
+              },
+            ]}
+          />
+        </Panel>
 
         {/* ── Analytics ───────────────────────────────────────────── */}
         <Panel

@@ -145,9 +145,37 @@ Three things about why it survived:
 3. `infra/postgres/init.sql` hardcodes `seoos_app`'s password. Fine on a laptop; on a
    server `deploy/update.sh` rotates it to match `DATABASE_URL` on every run.
 
-**Next: the AI layer** (`docs/07-ai-architecture.md`) — there is no `packages/ai/` yet, so
-Ollama is not installed and no report is generated. Phase 1's exit criterion, a monthly
-report for a real client, is not met.
+**Phase 1 is complete.** Its exit criterion — connect a real client's GSC and GA4, wait for a
+sync, generate a monthly report worth sending — passes end to end. `packages/ai/` talks to
+Ollama, the Report Narrator writes the narrative, and `/reports` renders and prints it.
+
+Four things from that build are worth knowing, because each is easy to undo:
+
+1. **The Report Narrator runs with `think` OFF, and that contradicts the spec on purpose.**
+   `docs/07-ai-architecture.md` §17 lists it as one of three agents with reasoning on.
+   Measured here on `qwen3.5:9b`, identical payload: **4.3s off vs 187s on**, for a
+   materially identical summary — and a full report payload blew past a 300s ceiling
+   entirely. Migration 0003 supersedes the prompt rather than editing it, so
+   `agent_runs.prompt_version_id` still resolves for every report already generated.
+   Turning it back on to compare quality is one `UPDATE`.
+2. **Two rules are verified, not just prompted.** Rule 7 (no causation) is checked by a regex
+   over the model's output in `report_narrator.find_causal_language`, because a prompt rule
+   is a request. Rule 6 (no arithmetic) holds because `packages/reporting/assemble.py`
+   computes every figure in SQL — including the percentage changes, which is exactly what a
+   9B model gets subtly wrong while sounding certain.
+3. **`prompt_versions` has a partial unique index on `(key) WHERE is_active`.** A new prompt
+   version must deactivate the old one *before* inserting, or the insert raises
+   `UniqueViolation`. That index is the schema enforcing §18's "never edit in place".
+4. **`page_performance` is a view created `WITH (security_invoker = true)`.** Without that,
+   a Postgres view evaluates the underlying RLS against the *view owner* — which owns the
+   tenant tables — and would return every org's rows to any caller while looking entirely
+   ordinary. `tests/isolation/test_page_performance_view.py` asserts the setting directly.
+
+**Next: Phase 2** (`docs/12-roadmap.md` §45, weeks 9–12) — crawler, Lighthouse, ~30 issue
+rules. Week 9 starts with the SSRF guard, which does not exist yet: `packages/core/errors.py`
+defines `SSRFBlockedError` and nothing raises it, so rule 9 currently has nothing enforcing
+it. `POST /v1/google/connect` already stores a user-supplied domain as `start_url`; build the
+guard before the crawler dereferences that field.
 
 ## The thing most likely to go wrong
 
